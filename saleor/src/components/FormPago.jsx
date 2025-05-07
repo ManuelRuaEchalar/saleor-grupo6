@@ -17,6 +17,7 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
   });
   const [step, setStep] = useState(1); // 1: Información de pago, 2: Confirmación, 3: Éxito
 
+  const [subscribeToNewsletter, setSubscribeToNewsletter] = useState(false);
   // Usuario por defecto para pruebas
   const userId = 1;
 
@@ -125,7 +126,8 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
           city: formData.city,
           zipCode: formData.zipCode,
           phone: formData.phone
-        }
+        },
+        subscribeToNewsletter
       };
       
       console.log('Enviando datos de orden:', orderData);
@@ -346,6 +348,16 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
                   onChange={handleChange}
                   placeholder="123 456 7890"
                 />
+              </div>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={subscribeToNewsletter}
+                    onChange={() => setSubscribeToNewsletter(prev => !prev)}
+                  />
+                  Deseo recibir promociones y noticias por correo electrónico
+                </label>
               </div>
             </div>
           </div>
