@@ -1,10 +1,11 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
-import WelcomeMessage from '../src/components/WelcomeMessage';
+import WelcomeMessage from '../components/WelcomeMessage';
 
 describe('WelcomeMessage', () => {
   it('debería renderizar el mensaje cuando se proporciona', () => {
-    render(<WelcomeMessage message="¡Bienvenido a la tienda!" />);
-    expect(screen.getByText(/bienvenido a la tienda/i)).toBeInTheDocument();
+    render(<WelcomeMessage message="Hoy hay descuentos! No te los pierdas!" />);
+    expect(screen.getByText(/hoy hay descuentos/i)).toBeInTheDocument();
   });
 
   it('no debería renderizar nada si no se pasa mensaje', () => {
