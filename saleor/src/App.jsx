@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import Nav from './components/Nav';
 import Product from './components/Product';
 import ProductCard from './components/ProductCard';
+import AdminWelcomeEditor from './components/AdminWelcomeEditor';
+import WelcomeMessage from './components/WelcomeMessage';
+
 import './App.css';
 
 function App() {
@@ -15,9 +18,20 @@ function App() {
   const defaultUser = {
     id: 1,
     email: "usuario@test.com",
+    role: "client",
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
+
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:4000/api/welcome')
+      .then(res => res.json())
+      .then(data => setWelcomeMessage(data.message))
+      .catch(err => console.error('Error al cargar mensaje:', err));
+  }, []);
+
 
   // Efecto para cargar productos (y reordenar si hay búsqueda previa)
   useEffect(() => {
@@ -86,6 +100,9 @@ function App() {
     <>
       <Nav onSearch={handleSearch} />
       <main className="products-container">
+        {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
+
+        <WelcomeMessage message={welcomeMessage} />
         <h1 className="products-title">
           {searchResults.length > 0 ? 'Resultados de búsqueda' : 'Nuestros Productos'}
         </h1>

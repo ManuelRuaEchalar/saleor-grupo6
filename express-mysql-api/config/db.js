@@ -68,6 +68,7 @@ async function initDatabase() {
         total DECIMAL(10,2) NOT NULL,
         paymentMethod VARCHAR(50) NOT NULL,
         status VARCHAR(20) DEFAULT 'pending', 
+        subscribeToNewsletter BOOLEAN DEFAULT FALSE,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       )
@@ -99,7 +100,13 @@ async function initDatabase() {
         )
       `);
     
-
+    await promisePool.query(`
+        CREATE TABLE IF NOT EXISTS welcome_messages (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          message TEXT NOT NULL,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `)
     console.log('Base de datos inicializada con éxito');
   } catch (error) {
     console.error('Error al inicializar la base de datos:', error);
