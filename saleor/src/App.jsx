@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import Nav from './components/Nav';
 import Product from './components/Product';
@@ -24,7 +25,8 @@ function App() {
       try {
         setLoading(true);
         const response = await fetch('http://localhost:4000/api/products');
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        // Verificar que response existe antes de acceder a ok
+        if (!response || !response.ok) throw new Error(`Error: ${response?.status || 'Unknown'}`);
         const data = await response.json();
 
         // Revisar si hay IDs de búsqueda guardados
@@ -44,6 +46,8 @@ function App() {
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('No se pudieron cargar los productos. Intente nuevamente más tarde.');
+        // Establecer un array vacío para productos en caso de error
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -103,8 +107,8 @@ function App() {
         )}
 
         <div className="products-grid">
-          {!loading && !error && displayProducts
-            .map(product => (
+          {!loading && !error && displayProducts && displayProducts.length > 0 &&
+            displayProducts.map(product => (
               <div key={product.id} className="product-item">
                 {searchResults.length > 0 ? (
                   <ProductCard product={product} />
@@ -121,11 +125,11 @@ function App() {
             ))}
         </div>
 
-        {!loading && searchResults.length === 0 && products.length === 0 && (
+        {!loading && !error && displayProducts.length === 0 && (
           <p className="no-products">No hay productos disponibles.</p>
         )}
 
-        {!loading && searchResults.length === 0 && products.length > 0 && (
+        {!loading && !error && searchResults.length === 0 && products.length > 0 && (
           <div className="search-notice">
             <p>Usa la barra de búsqueda para encontrar productos específicos</p>
           </div>

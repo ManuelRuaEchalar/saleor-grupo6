@@ -1,5 +1,6 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, Check } from 'lucide-react'; // Añadido Check
 import AddedProduct from './AddedProduct';
 import FormPago from './FormPago';
 
@@ -90,6 +91,8 @@ export default function Nav({ onSearch }) {
     } catch (err) {
       console.error('Error fetching cart items:', err);
       setError('No se pudieron cargar los productos del carrito.');
+      // Establecer array vacío para cartItems en caso de error
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -149,7 +152,10 @@ export default function Nav({ onSearch }) {
   };
   
   // Calcular la cantidad total de productos en el carrito
-  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  // Asegurar que sea un número válido y no NaN
+  const cartCount = cartItems && cartItems.length > 0 
+    ? cartItems.reduce((count, item) => count + (Number(item.quantity) || 0), 0)
+    : 0;
   
   // Función para proceder al pago
   const handleProceedToCheckout = () => {
@@ -182,17 +188,17 @@ export default function Nav({ onSearch }) {
       <div className="navbar-container">
         <div className="navbar-content">
           {/* Logo */}
-<div
-  className="logo-container"
-  onClick={() => window.location.reload()}
-  style={{ cursor: 'pointer' }}
->
-  <img
-    className="logo"
-    src="https://images.g2crowd.com/uploads/product/image/social_landscape/social_landscape_e78d43ef1b69dc49a9a6e5c87a6cb0d5/saleor-commerce.png"
-    alt="Saleor"
-  />
-</div>
+          <div
+            className="logo-container"
+            onClick={() => window.location.reload()}
+            style={{ cursor: 'pointer' }}
+          >
+            <img
+              className="logo"
+              src="https://images.g2crowd.com/uploads/product/image/social_landscape/social_landscape_e78d43ef1b69dc49a9a6e5c87a6cb0d5/saleor-commerce.png"
+              alt="Saleor"
+            />
+          </div>
           
           {/* Navigation Links - Desktop */}
           <div className="desktop-nav">
@@ -231,7 +237,7 @@ export default function Nav({ onSearch }) {
             <button onClick={toggleCart} className="action-icon cart-icon">
               <ShoppingCart size={24} />
               <span className="cart-count">
-                {cartCount}
+                {cartCount || 0}
               </span>
             </button>
           </div>
@@ -241,7 +247,7 @@ export default function Nav({ onSearch }) {
             <button onClick={toggleCart} className="action-icon cart-icon">
               <ShoppingCart size={24} />
               <span className="cart-count">
-                {cartCount}
+                {cartCount || 0}
               </span>
             </button>
             
@@ -264,6 +270,8 @@ export default function Nav({ onSearch }) {
                 type="text"
                 placeholder="Buscar..."
                 className="search-input-mobile"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button className="search-button-mobile">
                 <Search size={20} />
