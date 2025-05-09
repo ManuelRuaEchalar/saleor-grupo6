@@ -13,6 +13,11 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
       setMaxPrice(999);
       setMinInputValue('0.00');
       setMaxInputValue('999.00');
+    } else {
+      setMinPrice(activeFilter.min);
+      setMaxPrice(activeFilter.max);
+      setMinInputValue(activeFilter.min.toFixed(2));
+      setMaxInputValue(activeFilter.max.toFixed(2));
     }
   }, [activeFilter]);
   
@@ -28,26 +33,36 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
   // Manejar cambio en el input del precio mínimo
   const handleMinInputChange = (e) => {
     const value = e.target.value;
-    // Permitir cualquier entrada para edición
-    setMinInputValue(value);
     
-    // Convertir a número si es válido
-    if (/^[0-9]*\.?[0-9]*$/.test(value)) {
-      const numValue = parseFloat(value) || 0;
-      setMinPrice(numValue);
+    // Permitir entrada de números y un punto decimal
+    if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+      setMinInputValue(value);
+      
+      // Actualizar el valor numérico si es válido
+      if (value !== '') {
+        const numValue = parseFloat(value);
+        if (!isNaN(numValue)) {
+          setMinPrice(numValue);
+        }
+      }
     }
   };
   
   // Manejar cambio en el input del precio máximo
   const handleMaxInputChange = (e) => {
     const value = e.target.value;
-    // Permitir cualquier entrada para edición
-    setMaxInputValue(value);
     
-    // Convertir a número si es válido
-    if (/^[0-9]*\.?[0-9]*$/.test(value)) {
-      const numValue = parseFloat(value) || 0;
-      setMaxPrice(numValue);
+    // Permitir entrada de números y un punto decimal
+    if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+      setMaxInputValue(value);
+      
+      // Actualizar el valor numérico si es válido
+      if (value !== '') {
+        const numValue = parseFloat(value);
+        if (!isNaN(numValue)) {
+          setMaxPrice(numValue);
+        }
+      }
     }
   };
   
@@ -79,8 +94,7 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
       borderRadius: '8px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
       padding: '20px',
-      marginRight: '20px',
-      float: 'left'
+      marginRight: '20px'
     }}>
       <h3 style={{ 
         textAlign: 'center',
@@ -92,48 +106,12 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
         Filtro de precio
       </h3>
       
-      {/* Indicadores de rango actual */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        marginBottom: '15px'
-      }}>
-        <div style={{
-          backgroundColor: '#f5f5f5',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          fontSize: '0.9rem'
-        }}>
-          ${minPrice.toFixed(2)}
-        </div>
-        <div style={{
-          backgroundColor: '#f5f5f5',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          fontSize: '0.9rem'
-        }}>
-          ${maxPrice.toFixed(2)}
-        </div>
-      </div>
-      
-      {/* Indicadores de rango */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontSize: '0.8rem',
-        color: '#888',
-        marginBottom: '5px'
-      }}>
-        <span>$0.00</span>
-        <span>$999.00</span>
-      </div>
-      
       {/* Deslizador para el precio mínimo */}
       <div style={{ marginBottom: '15px' }}>
         <label style={{ 
           display: 'block', 
           marginBottom: '5px',
-          fontSize: '0.85rem',
+          fontSize: '0.9rem',
           color: '#666'
         }}>
           Precio mínimo
@@ -157,7 +135,7 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
         <label style={{ 
           display: 'block', 
           marginBottom: '5px',
-          fontSize: '0.85rem',
+          fontSize: '0.9rem',
           color: '#666'
         }}>
           Precio máximo
@@ -186,7 +164,7 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
       }}>
         <input 
           type="text"
-          placeholder="min"
+          placeholder="0.00"
           value={minInputValue}
           onChange={handleMinInputChange}
           onBlur={() => handleInputBlur('min')}
@@ -201,7 +179,7 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
         <span style={{ color: '#888' }}>–</span>
         <input 
           type="text"
-          placeholder="max"
+          placeholder="999.00"
           value={maxInputValue}
           onChange={handleMaxInputChange}
           onBlur={() => handleInputBlur('max')}
@@ -254,4 +232,3 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
 };
 
 export default PriceFilter;
-

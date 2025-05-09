@@ -182,112 +182,114 @@ function App() {
     }
   };
 
-  return (
-    <>
-      <Nav onSearch={handleSearch} />
-      <main style={{ 
-        display: 'flex', 
-        padding: '20px', 
-        maxWidth: '1200px', 
-        margin: '0 auto'
-      }}>
-        {/* Contenedor de filtros */}
+  // En App.jsx, modifica la estructura del return:
+return (
+  <>
+    <Nav onSearch={handleSearch} />
+    <main style={{ 
+      display: 'flex', 
+      padding: '20px', 
+      maxWidth: '1200px', 
+      margin: '0 auto',
+      gap: '30px'
+    }}>
+      {/* Contenedor de filtros colocado más a la izquierda */}
+      <div style={{ minWidth: '250px' }}>
         {!loading && !error && products.length > 0 && (
-          <div className="filters-container">
-            <PriceFilter 
-              onApplyFilter={handlePriceFilter} 
-              activeFilter={priceFilter}
-            />
+          <PriceFilter 
+            onApplyFilter={handlePriceFilter} 
+            activeFilter={priceFilter}
+          />
+        )}
+      </div>
+      
+      {/* Contenedor de productos con margen ajustado */}
+      <div style={{ flex: 1 }}>
+        {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
+
+        <WelcomeMessage message={welcomeMessage} />
+        <h1 className="products-title">{getTitle()}</h1>
+
+        {loading && (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Cargando productos...</p>
           </div>
         )}
-        
-        {/* Contenedor de productos */}
-        <div style={{ flex: 1 }}>
-          {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
 
-          <WelcomeMessage message={welcomeMessage} />
-          <h1 className="products-title">{getTitle()}</h1>
-
-          {loading && (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>Cargando productos...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="error-container">
-              <p className="error-message">{error}</p>
-              <button className="retry-button" onClick={() => window.location.reload()}>
-                Reintentar
-              </button>
-            </div>
-          )}
-
-          <div className="products-grid">
-            {!loading && !error && filteredProducts && filteredProducts.length > 0 &&
-              filteredProducts.map(product => (
-                <div key={product.id} className="product-item">
-                  {searchResults.length > 0 ? (
-                    <ProductCard product={product} />
-                  ) : (
-                    <Product 
-                      id={product.id}
-                      name={product.name}
-                      description={product.description}
-                      price={product.price}
-                      image={product.image}
-                    />
-                  )}
-                </div>
-              ))}
+        {error && (
+          <div className="error-container">
+            <p className="error-message">{error}</p>
+            <button className="retry-button" onClick={() => window.location.reload()}>
+              Reintentar
+            </button>
           </div>
+        )}
 
-          {/* Mensaje cuando no hay resultados con los filtros aplicados */}
-          {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
-            <div style={{
-              backgroundColor: '#fff',
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-              marginTop: '20px'
-            }}>
-              <p>No se encontraron productos que coincidan con los criterios seleccionados.</p>
-              <button 
-                onClick={() => {
-                  setPriceFilter(null);
-                  setSearchResults([]);
-                  setFilteredProducts(products);
-                }}
-                style={{
-                  backgroundColor: '#161a1e',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  marginTop: '10px',
-                  cursor: 'pointer'
-                }}
-              >
-                Mostrar todos los productos
-              </button>
-            </div>
-          )}
-
-          {!loading && !error && products.length === 0 && (
-            <p className="no-products">No hay productos disponibles.</p>
-          )}
-
-          {!loading && !error && searchResults.length === 0 && !priceFilter && products.length > 0 && filteredProducts.length > 0 && (
-            <div className="search-notice">
-              <p>Usa la barra de búsqueda para encontrar productos específicos</p>
-            </div>
-          )}
+        <div className="products-grid">
+          {!loading && !error && filteredProducts && filteredProducts.length > 0 &&
+            filteredProducts.map(product => (
+              <div key={product.id} className="product-item">
+                {searchResults.length > 0 ? (
+                  <ProductCard product={product} />
+                ) : (
+                  <Product 
+                    id={product.id}
+                    name={product.name}
+                    description={product.description}
+                    price={product.price}
+                    image={product.image}
+                  />
+                )}
+              </div>
+            ))}
         </div>
-      </main>
-    </>
-  );
+
+        {/* Mensaje cuando no hay resultados con los filtros aplicados */}
+        {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '8px',
+            padding: '20px',
+            textAlign: 'center',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            marginTop: '20px'
+          }}>
+            <p>No se encontraron productos que coincidan con los criterios seleccionados.</p>
+            <button 
+              onClick={() => {
+                setPriceFilter(null);
+                setSearchResults([]);
+                setFilteredProducts(products);
+              }}
+              style={{
+                backgroundColor: '#161a1e',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                marginTop: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              Mostrar todos los productos
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && products.length === 0 && (
+          <p className="no-products">No hay productos disponibles.</p>
+        )}
+
+        {!loading && !error && searchResults.length === 0 && !priceFilter && products.length > 0 && filteredProducts.length > 0 && (
+          <div className="search-notice">
+            <p>Usa la barra de búsqueda para encontrar productos específicos</p>
+          </div>
+        )}
+      </div>
+    </main>
+  </>
+);
 }
 
 export default App;
