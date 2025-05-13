@@ -1274,3 +1274,81 @@ input[type="text"]:focus {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Estilos para las etiquetas de producto */
+/* Contenedor de etiquetas - posicionado en la esquina superior derecha */
+.product-tags {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 1; /* Reducido de 10 a 1 para asegurar que no sobresalga demasiado */
+  pointer-events: none; /* Permite que los clicks pasen a través */
+  max-width: calc(100% - 20px); /* Limita el ancho al contenedor menos el padding */
+}
+/* Estilo de cada etiqueta individual */
+.product-tag {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  letter-spacing: 0.5px;
+  max-width: 100%; /* Cambiado de 120px a 100% para adaptarse mejor al contenedor */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+/* Colores específicos para diferentes tipos de etiquetas */
+.product-tag:nth-child(1) {
+  background-color: rgba(220, 53, 69, 0.8); /* Rojo para la primera etiqueta */
+}
+.product-tag:nth-child(2) {
+  background-color: rgba(13, 110, 253, 0.8); /* Azul para la segunda etiqueta */
+}
+/* Asegurar que la imagen de producto tenga position relative para que las etiquetas estén bien posicionadas */
+.product-image-container {
+  position: relative;
+  overflow: hidden; /* Esto ayuda a contener las etiquetas dentro del contenedor */
+  width: 100%; /* Asegura que el contenedor tenga un ancho definido */
+  height: auto; /* Altura automática basada en el contenido */
+}
+/* Asegurar que la imagen se ajuste correctamente */
+.product-image {
+  width: 100%;
+  height: auto;
+  display: block; /* Elimina espacios innecesarios debajo de la imagen */
+  object-fit: cover; /* Cubre el contenedor manteniendo la proporción */
+}
+/* Efecto hover para las etiquetas */
+@media (hover: hover) {
+  .product-card:hover .product-tag {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .product-tag {
+    opacity: 0.9;
+    transform: translateY(3px);
+    transition: all 0.2s ease-in-out;
+  }
+}
+/* Estilo responsivo para pantallas pequeñas */
+@media (max-width: 576px) {
+  .product-tags {
+    top: 5px;
+    right: 5px;
+  }
+  
+  .product-tag {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+}

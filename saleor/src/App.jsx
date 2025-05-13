@@ -15,12 +15,23 @@ function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [priceFilter, setPriceFilter] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [categoryTitle, setCategoryTitle] = useState(null);
+
+  // Map de IDs de etiquetas a nombres de categorías
+  const tagIdToCategoryName = {
+    6: 'Ropa',
+    7: 'Accesorios',
+    8: 'Electrónica',
+    9: 'Hogar',
+    10: 'Belleza'
+  };
 
   // Usuario por defecto para pruebas
   const defaultUser = {
     id: 1,
     email: "usuario@test.com",
-    role: "client",
+    role: "user",
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
@@ -59,25 +70,46 @@ function App() {
     return 0;
   };
 
-  // Efecto para cargar productos (y reordenar si hay búsqueda previa)
+  // Efecto para cargar productos (todos o por categoría)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:4000/api/products');
+        
+        // Determinar la URL a usar según si hay una categoría activa
+        let url = 'http://localhost:4000/api/products';
+        
+        if (activeCategory) {
+          url = `http://localhost:4000/api/tags/${activeCategory}/products`;
+        }
+        
+        const response = await fetch(url);
+        
         // Verificar que response existe antes de acceder a ok
         if (!response || !response.ok) throw new Error(`Error: ${response?.status || 'Unknown'}`);
+        
+        // Dependiendo de la estructura de respuesta podría ser diferente
         const data = await response.json();
+        
+        // Extraer productos de la respuesta - ajustar según la estructura real de la API
+        const receivedProducts = activeCategory ? data.products || data : data;
+        
+        // Establecer el título de categoría si hay una activa
+        if (activeCategory && tagIdToCategoryName[activeCategory]) {
+          setCategoryTitle(tagIdToCategoryName[activeCategory]);
+        } else {
+          setCategoryTitle(null);
+        }
 
         // Revisar si hay IDs de búsqueda guardados
         const savedIds = JSON.parse(localStorage.getItem('lastSearchedIds') || '[]');
-        let ordered = data;
-        if (savedIds.length) {
-          // Productos buscados primero, en el orden guardado
+        let ordered = receivedProducts;
+        if (savedIds.length && !activeCategory) {
+          // Productos buscados primero, en el orden guardado (solo cuando no filtramos por categoría)
           const matched = savedIds
-            .map(id => data.find(p => p.id === id))
+            .map(id => receivedProducts.find(p => p.id === id))
             .filter(Boolean);
-          const rest = data.filter(p => !savedIds.includes(p.id));
+          const rest = receivedProducts.filter(p => !savedIds.includes(p.id));
           ordered = [...matched, ...rest];
         }
 
@@ -94,6 +126,7 @@ function App() {
 
         setProducts(ordered);
         setFilteredProducts(ordered);
+        setSearchResults([]); // Limpiar resultados de búsqueda cuando cambia la categoría
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -107,7 +140,7 @@ function App() {
     };
 
     fetchProducts();
-  }, []);
+  }, [activeCategory]); // Este efecto se ejecuta cuando cambia la categoría activa
 
   // Actualizar productos filtrados basado en búsqueda y filtro de precio
   const updateFilteredProducts = (searchList, priceRange) => {
@@ -173,123 +206,145 @@ function App() {
     }
   };
 
+  // Manejar la selección de categoría
+  const handleCategorySelect = (tagId) => {
+    setActiveCategory(tagId);
+    // El nuevo fetch ocurrirá automáticamente por el useEffect que depende de activeCategory
+  };
+
   // Determinar qué mostrar para el título
   const getTitle = () => {
     if (searchResults.length > 0) {
       return 'Resultados de búsqueda';
+    } else if (categoryTitle) {
+      return categoryTitle;
     } else {
       return 'Nuestros Productos';
     }
   };
 
-  // En App.jsx, modifica la estructura del return:
-return (
-  <>
-    <Nav onSearch={handleSearch} />
-    <main style={{ 
-      display: 'flex', 
-      padding: '20px', 
-      maxWidth: '1200px', 
-      margin: '0 auto',
-      gap: '30px'
-    }}>
-      {/* Contenedor de filtros colocado más a la izquierda */}
-      <div style={{ minWidth: '250px' }}>
-        {!loading && !error && products.length > 0 && (
-          <PriceFilter 
-            onApplyFilter={handlePriceFilter} 
-            activeFilter={priceFilter}
-          />
-        )}
-      </div>
-      
-      {/* Contenedor de productos con margen ajustado */}
-      <div style={{ flex: 1 }}>
-        {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
-
-        <WelcomeMessage message={welcomeMessage} />
-        <h1 className="products-title">{getTitle()}</h1>
-
-        {loading && (
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Cargando productos...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="error-container">
-            <p className="error-message">{error}</p>
-            <button className="retry-button" onClick={() => window.location.reload()}>
-              Reintentar
-            </button>
-          </div>
-        )}
-
-        <div className="products-grid">
-          {!loading && !error && filteredProducts && filteredProducts.length > 0 &&
-            filteredProducts.map(product => (
-              <div key={product.id} className="product-item">
-                {searchResults.length > 0 ? (
-                  <ProductCard product={product} />
-                ) : (
-                  <Product 
-                    id={product.id}
-                    name={product.name}
-                    description={product.description}
-                    price={product.price}
-                    image={product.image}
-                  />
-                )}
-              </div>
-            ))}
+  // Estructura de la aplicación
+  return (
+    <>
+      <Nav onSearch={handleSearch} onCategorySelect={handleCategorySelect} />
+      <main style={{ 
+        display: 'flex', 
+        padding: '20px', 
+        maxWidth: '1200px', 
+        margin: '0 auto',
+        gap: '30px'
+      }}>
+        {/* Contenedor de filtros colocado más a la izquierda */}
+        <div style={{ minWidth: '250px' }}>
+          {!loading && !error && products.length > 0 && (
+            <PriceFilter 
+              onApplyFilter={handlePriceFilter} 
+              activeFilter={priceFilter}
+            />
+          )}
+          
+          {/* Indicador de categoría activa para móviles */}
+          {categoryTitle && (
+            <div className="active-category-indicator">
+              <p>Categoría: <strong>{categoryTitle}</strong></p>
+              <button 
+                onClick={() => handleCategorySelect(null)}
+                className="clear-category-button"
+              >
+                Mostrar todo
+              </button>
+            </div>
+          )}
         </div>
+        
+        {/* Contenedor de productos con margen ajustado */}
+        <div style={{ flex: 1 }}>
+          {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
 
-        {/* Mensaje cuando no hay resultados con los filtros aplicados */}
-        {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            padding: '20px',
-            textAlign: 'center',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-            marginTop: '20px'
-          }}>
-            <p>No se encontraron productos que coincidan con los criterios seleccionados.</p>
-            <button 
-              onClick={() => {
-                setPriceFilter(null);
-                setSearchResults([]);
-                setFilteredProducts(products);
-              }}
-              style={{
-                backgroundColor: '#161a1e',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                marginTop: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              Mostrar todos los productos
-            </button>
+          <WelcomeMessage message={welcomeMessage} />
+          <h1 className="products-title">{getTitle()}</h1>
+
+          {loading && (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Cargando productos...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="error-container">
+              <p className="error-message">{error}</p>
+              <button className="retry-button" onClick={() => window.location.reload()}>
+                Reintentar
+              </button>
+            </div>
+          )}
+
+          <div className="products-grid">
+            {!loading && !error && filteredProducts && filteredProducts.length > 0 &&
+              filteredProducts.map(product => (
+                <div key={product.id} className="product-item">
+                  {searchResults.length > 0 ? (
+                    <ProductCard product={product} />
+                  ) : (
+                    <Product 
+                      id={product.id}
+                      name={product.name}
+                      description={product.description}
+                      price={product.price}
+                      image={product.image}
+                    />
+                  )}
+                </div>
+              ))}
           </div>
-        )}
 
-        {!loading && !error && products.length === 0 && (
-          <p className="no-products">No hay productos disponibles.</p>
-        )}
+          {/* Mensaje cuando no hay resultados con los filtros aplicados */}
+          {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+            <div style={{
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              padding: '20px',
+              textAlign: 'center',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              marginTop: '20px'
+            }}>
+              <p>No se encontraron productos que coincidan con los criterios seleccionados.</p>
+              <button 
+                onClick={() => {
+                  setPriceFilter(null);
+                  setSearchResults([]);
+                  setActiveCategory(null);
+                  setFilteredProducts(products);
+                }}
+                style={{
+                  backgroundColor: '#161a1e',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  marginTop: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                Mostrar todos los productos
+              </button>
+            </div>
+          )}
 
-        {!loading && !error && searchResults.length === 0 && !priceFilter && products.length > 0 && filteredProducts.length > 0 && (
-          <div className="search-notice">
-            <p>Usa la barra de búsqueda para encontrar productos específicos</p>
-          </div>
-        )}
-      </div>
-    </main>
-  </>
-);
+          {!loading && !error && products.length === 0 && (
+            <p className="no-products">No hay productos disponibles.</p>
+          )}
+
+          {!loading && !error && searchResults.length === 0 && !priceFilter && !categoryTitle && products.length > 0 && filteredProducts.length > 0 && (
+            <div className="search-notice">
+              <p>Usa la barra de búsqueda para encontrar productos específicos</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
+  );
 }
 
 export default App;

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Search, ShoppingCart, User, Menu, X, Check } from 'lucide-react'; // Añadido Check
+import { Search, ShoppingCart, User, Menu, X, Check } from 'lucide-react';
 import AddedProduct from './AddedProduct';
 import FormPago from './FormPago';
 
-export default function Nav({ onSearch }) {
+export default function Nav({ onSearch, onCategorySelect }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
@@ -13,12 +13,23 @@ export default function Nav({ onSearch }) {
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState(null);
+    
   // Usuario por defecto para pruebas
   const defaultUser = {
     id: 1,
     email: "usuario@test.com",
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
+  };
+  
+  // Mapeo de categorías a IDs de etiquetas (según lo que mostraste en la estructura de BD)
+  const categoryToTagMapping = {
+    "Ropa": 6, // Asumiendo estos IDs para las categorías principales
+    "Accesorios": 7,
+    "Electrónica": 8,
+    "Hogar": 9,
+    "Belleza": 10
   };
   
   const categories = [
@@ -40,6 +51,8 @@ export default function Nav({ onSearch }) {
           const data = await response.json();
           if (data.success && onSearch) {
             onSearch(data.products);
+            // Resetear categoría activa cuando se busca algo
+            setActiveCategory(null);
           }
         } catch (err) {
           console.error('Error buscando productos:', err);
@@ -72,6 +85,28 @@ export default function Nav({ onSearch }) {
     // Cargar los productos del carrito cuando se abre
     if (!isCartOpen) {
       fetchCartItems();
+    }
+  };
+  
+  // Función para manejar la selección de categoría
+  const handleCategorySelect = (category) => {
+    // Si la categoría ya está activa, resetear el filtro
+    if (activeCategory === category) {
+      setActiveCategory(null);
+      onCategorySelect(null);
+      // Limpiar búsqueda también al desactivar categoría
+      setSearchQuery('');
+    } else {
+      setActiveCategory(category);
+      const tagId = categoryToTagMapping[category];
+      onCategorySelect(tagId);
+      // Limpiar búsqueda cuando seleccionamos una categoría
+      setSearchQuery('');
+    }
+    
+    // Cerrar el menú móvil si está abierto
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
     }
   };
   
@@ -190,7 +225,14 @@ export default function Nav({ onSearch }) {
           {/* Logo */}
           <div
             className="logo-container"
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              // Resetear categoría y búsqueda al hacer clic en el logo
+              setActiveCategory(null);
+              setSearchQuery('');
+              onCategorySelect(null);
+              onSearch([]);
+              window.location.reload();
+            }}
             style={{ cursor: 'pointer' }}
           >
             <img
@@ -207,7 +249,11 @@ export default function Nav({ onSearch }) {
                 <a 
                   key={category} 
                   href="#" 
-                  className="nav-link"
+                  className={`nav-link ${activeCategory === category ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCategorySelect(category);
+                  }}
                 >
                   {category}
                 </a>
@@ -287,7 +333,11 @@ export default function Nav({ onSearch }) {
               <a
                 key={category}
                 href="#"
-                className="mobile-nav-link"
+                className={`mobile-nav-link ${activeCategory === category ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCategorySelect(category);
+                }}
               >
                 {category}
               </a>
@@ -389,6 +439,19 @@ export default function Nav({ onSearch }) {
       <div className="submenu">
         <div className="submenu-container">
           <div className="submenu-content">
+            <a 
+              href="#" 
+              className={`submenu-link ${activeCategory === null && searchQuery === '' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveCategory(null);
+                setSearchQuery('');
+                onCategorySelect(null);
+                onSearch([]);
+              }}
+            >
+              Todos
+            </a>
             <a href="#" className="submenu-link">Novedades</a>
             <a href="#" className="submenu-link">Ofertas</a>
             <a href="#" className="submenu-link">Colecciones</a>

@@ -8,10 +8,13 @@ const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartItemRoutes = require('./routes/cartItemRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const tagRoutes = require('./routes/tagRoutes');
 const welcomeRoutes = require('./routes/welcomeRoutes');
 // Crear aplicación Express
 const app = express();
 
+// Middleware para procesar JSON
+app.use(express.json());
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
@@ -22,6 +25,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart-items', cartItemRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/tags', tagRoutes);
 app.use('/api/welcome', welcomeRoutes);
 
 // Ruta de prueba
