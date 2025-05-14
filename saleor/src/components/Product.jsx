@@ -7,6 +7,9 @@ function Product({ id, name, description, price, image }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tagAdded, setTagAdded] = useState(false);
+  // NUEVO: Estado para la estimación de entrega
+  const [deliveryEstimate, setDeliveryEstimate] = useState(null);
+  const [estimateLoading, setEstimateLoading] = useState(true);
 
   // Usuario por defecto para pruebas - en producción esto vendría de un contexto o sistema de autenticación
   const defaultUser = {
@@ -17,6 +20,42 @@ function Product({ id, name, description, price, image }) {
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
 
+  // NUEVO: Obtener la estimación de tiempo de entrega
+  useEffect(() => {
+    const fetchDeliveryEstimate = async () => {
+      try {
+        setEstimateLoading(true);
+        const response = await fetch(`http://localhost:4000/api/delivery-estimate/${id}`);
+        
+        if (!response.ok) {
+          // Si la API no existe, generamos datos ficticios para demostración
+          const randomDays = Math.floor(Math.random() * 5) + 3; // Entre 3 y 7 días
+          setDeliveryEstimate({
+            minDays: randomDays,
+            maxDays: randomDays + 2,
+            available: true
+          });
+        } else {
+          const data = await response.json();
+          setDeliveryEstimate(data);
+        }
+      } catch (error) {
+        console.error('Error al obtener estimación de entrega:', error);
+        // En caso de error, generamos una estimación predeterminada
+        const randomDays = Math.floor(Math.random() * 5) + 3;
+        setDeliveryEstimate({
+          minDays: randomDays,
+          maxDays: randomDays + 2,
+          available: true
+        });
+      } finally {
+        setEstimateLoading(false);
+      }
+    };
+
+    fetchDeliveryEstimate();
+  }, [id]);
+
   // Obtener las etiquetas disponibles y las etiquetas del producto al cargar el componente
   useEffect(() => {
     // Solo cargar si se muestra el selector de etiquetas
@@ -25,6 +64,18 @@ function Product({ id, name, description, price, image }) {
       fetchProductTags();
     }
   }, [showTagOptions]);
+
+  // NUEVO: Función para formatear la fecha de entrega
+  const formatDeliveryDate = (daysToAdd) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysToAdd);
+    
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+  };
 
   // Función para obtener todas las etiquetas disponibles
   const fetchAvailableTags = async () => {
@@ -139,6 +190,36 @@ function Product({ id, name, description, price, image }) {
         )}
         
         <p className="product-price">{formatPrice(price)}</p>
+        
+        {/* NUEVO: Sección de estimación de tiempo de entrega */}
+        <div className="delivery-estimate" style={{
+          backgroundColor: '#f8f9fa',
+          borderRadius: '6px',
+          padding: '10px',
+          margin: '10px 0',
+          fontSize: '14px'
+        }}>
+          {estimateLoading ? (
+            <p style={{ color: '#666', fontStyle: 'italic' }}>Calculando tiempo de entrega...</p>
+          ) : deliveryEstimate ? (
+            deliveryEstimate.available ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ marginRight: '8px', fontSize: '18px' }}>🚚</span>
+                <div>
+                  <p style={{ fontWeight: '500', marginBottom: '2px', color: '#333' }}>Entrega estimada:</p>
+                  <p style={{ color: '#4caf50', fontWeight: '500' }}>
+                    {formatDeliveryDate(deliveryEstimate.minDays)} - {formatDeliveryDate(deliveryEstimate.maxDays)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p style={{ color: '#e53935', display: 'flex', alignItems: 'center' }}>
+                <span style={{ marginRight: '8px', fontSize: '18px' }}>⚠️</span>
+                Producto sin stock disponible
+              </p>
+            )
+          ) : null}
+        </div>
         
         <button className="add-to-cart-button" style={{
           backgroundColor: '#161a1e',
