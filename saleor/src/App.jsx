@@ -6,6 +6,7 @@ import ProductCard from './components/ProductCard';
 import AdminWelcomeEditor from './components/AdminWelcomeEditor';
 import WelcomeMessage from './components/WelcomeMessage';
 import PriceFilter from './components/PriceFilter';
+import ExportCustomersCSV from './components/ExportCustomersCSV';
 import './App.css';
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [categoryTitle, setCategoryTitle] = useState(null);
+  // NUEVO: Estado para controlar el rol del usuario
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Map de IDs de etiquetas a nombres de categorías
   const tagIdToCategoryName = {
@@ -27,11 +30,11 @@ function App() {
     10: 'Belleza'
   };
 
-  // Usuario por defecto para pruebas
+  // Usuario por defecto para pruebas - ahora con rol dinámico
   const defaultUser = {
     id: 1,
     email: "usuario@test.com",
-    role: "user",
+    role: isAdmin ? "admin" : "user", // Rol basado en el estado isAdmin
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
@@ -227,6 +230,38 @@ function App() {
   return (
     <>
       <Nav onSearch={handleSearch} onCategorySelect={handleCategorySelect} />
+      
+      {/* NUEVO: Interruptor de modo administrador */}
+      <div style={{ 
+        position: 'fixed', 
+        bottom: '20px', 
+        right: '20px', 
+        zIndex: 1000,
+        backgroundColor: isAdmin ? '#4caf50' : '#f1f1f1',
+        padding: '10px 15px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s'
+      }} onClick={() => setIsAdmin(!isAdmin)}>
+        <div style={{
+          width: '16px',
+          height: '16px',
+          borderRadius: '50%',
+          backgroundColor: isAdmin ? 'white' : '#aaa',
+          transition: 'background-color 0.3s'
+        }}></div>
+        <span style={{
+          fontWeight: 'bold',
+          color: isAdmin ? 'white' : '#333'
+        }}>
+          {isAdmin ? 'Modo Admin: ON' : 'Modo Admin: OFF'}
+        </span>
+      </div>
+      
       <main style={{ 
         display: 'flex', 
         padding: '20px', 
@@ -242,6 +277,7 @@ function App() {
               activeFilter={priceFilter}
             />
           )}
+          
           
           {/* Indicador de categoría activa para móviles */}
           {categoryTitle && (
@@ -262,6 +298,22 @@ function App() {
           {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
 
           <WelcomeMessage message={welcomeMessage} />
+          
+          {/* Sección de herramientas de administración */}
+          {defaultUser?.role === 'admin' && (
+            <div className="admin-tools" style={{
+              marginBottom: '20px',
+              padding: '15px',
+              backgroundColor: '#f9f9f9',
+              borderRadius: '8px',
+              border: '1px solid #e0e0e0'
+            }}>
+              <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Herramientas de Administración</h3>
+              <ExportCustomersCSV />
+              {/* Otras herramientas de admin pueden añadirse aquí */}
+            </div>
+          )}
+          
           <h1 className="products-title">{getTitle()}</h1>
 
           {loading && (
