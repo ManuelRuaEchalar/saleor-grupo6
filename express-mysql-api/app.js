@@ -11,7 +11,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 const welcomeRoutes = require('./routes/welcomeRoutes');
 const customerRoutes = require('./routes/customers'); // Nuevo: importar rutas de clientes
-
+const deliveryEstimateRoutes = require('./routes/deliveryEstimateRoutes');
 // Crear aplicación Express
 const app = express();
 
@@ -30,6 +30,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/welcome', welcomeRoutes);
 app.use('/api/customers', customerRoutes); // Nuevo: configurar rutas de clientes
+app.use('/api/delivery-estimate', deliveryEstimateRoutes);
+
 
 // Ruta de prueba
 app.get('/', (req, res) => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Check } from 'lucide-react';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onAddToCart }) => {
   // Validación de datos del producto
   if (!product || typeof product !== 'object') {
     return null; // O mostrar un placeholder de error
@@ -68,7 +68,10 @@ const ProductCard = ({ product }) => {
           <span className="product-price">${(price || 0).toFixed(2)}</span>
           <button
             className={`product-button ${loading ? 'loading' : ''} ${added ? 'added' : ''}`}
-            onClick={handleAddToCart}
+            onClick={async () => {
+              await handleAddToCart(); // Esto es lo que hace el fetch
+              if (onAddToCart) onAddToCart(product); // Esto actualiza el frontend
+            }}
             disabled={loading}
           >
             {loading

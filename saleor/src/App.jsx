@@ -20,6 +20,21 @@ function App() {
   const [categoryTitle, setCategoryTitle] = useState(null);
   // NUEVO: Estado para controlar el rol del usuario
   const [isAdmin, setIsAdmin] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+
+
+  const handleAddToCart = (product) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === product.id);
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        return [...prevItems, { ...product, quantity: 1 }];
+      }
+    });
+  };
 
   // Map de IDs de etiquetas a nombres de categorías
   const tagIdToCategoryName = {
@@ -341,7 +356,7 @@ function App() {
               filteredProducts.map(product => (
                 <div key={product.id} className="product-item">
                   {searchResults.length > 0 ? (
-                    <ProductCard product={product} />
+                    <ProductCard product={product} onAddToCart={handleAddToCart} />
                   ) : (
                     <Product 
                       id={product.id}
