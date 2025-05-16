@@ -107,6 +107,39 @@ async function initDatabase() {
           createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
         );
       `)
+    
+    await promisePool.query(`
+      CREATE TABLE IF NOT EXISTS customers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        phone VARCHAR(50),
+        notes TEXT,
+        customer_type VARCHAR(50),
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
+    await promisePool.query(`
+      CREATE TABLE IF NOT EXISTS tags (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+      );
+    `);
+
+    // Crear tabla de relación entre productos y etiquetas
+    await promisePool.query(`
+      CREATE TABLE IF NOT EXISTS product_tags (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        tag_id INT NOT NULL,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+        FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+      )
+    `);
+
+
     console.log('Base de datos inicializada con éxito');
   } catch (error) {
     console.error('Error al inicializar la base de datos:', error);

@@ -21,13 +21,17 @@ async function seedDatabase() {
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDNkhx9yiW1YFzKH2n74PsO6P29JtVuNcSHQ&s'
     ];
 
-    // Crear productos con imágenes
+    // Lista de precios personalizados o aleatorios
+    const prices = [12.99, 25.50, 45.00, 19.90, 9.99, 33.33, 15.75, 29.80, 22.49, 17.60];
+
+    // Crear productos con imágenes y precios variados
     const products = images.map((image, i) => ({
       name: `Producto ${i + 1}`,
       description: `Descripción del producto ${i + 1}`,
-      price: 9.99,
+      price: prices[i],
       image
     }));
+
 
     for (const product of products) {
       const [rows] = await pool.query(
@@ -97,6 +101,37 @@ async function seedDatabase() {
         console.log(`El item ya existe en el carrito: ProductID: ${productId}, omitiendo...`);
       }
     }
+
+    const customers = [
+      { name: 'Juan Pérez', email: 'juan.perez@mail.com', phone: '12345678', customer_type: 'regular', notes: 'Cliente frecuente' },
+      { name: 'María García', email: 'maria.garcia@mail.com', phone: '87654321', customer_type: 'premium', notes: 'Compra cada mes' },
+      { name: 'Carlos López', email: 'carlos.lopez@mail.com', phone: '11223344', customer_type: 'wholesale', notes: 'Cliente mayorista' }
+    ];
+
+    for (const customer of customers) {
+      const [existing] = await pool.query(
+        `SELECT * FROM customers WHERE email = ?`,
+        [customer.email]
+      );
+
+      if (existing.length === 0) {
+        await pool.query(
+          `INSERT INTO customers (name, email, phone, customer_type, notes)
+          VALUES (?, ?, ?, ?, ?)`,
+          [customer.name, customer.email, customer.phone, customer.customer_type, customer.notes]
+        );
+        console.log(`Cliente creado: ${customer.name}`);
+      } else {
+        console.log(`El cliente ${customer.email} ya existe, omitiendo...`);
+      }
+    }
+
+    const tags = ['Ropa', 'Accesorios', 'Electrónica', 'Hogar', 'Belleza'];
+    for (const name of tags) {
+      await pool.query(`INSERT IGNORE INTO tags (name) VALUES (?)`, [name]);
+    }
+
+
 
     console.log('Seed completado con éxito');
     await pool.end();

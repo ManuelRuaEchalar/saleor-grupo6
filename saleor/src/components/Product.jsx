@@ -15,7 +15,7 @@ function Product({ id, name, description, price, image }) {
   const defaultUser = {
     id: 1, 
     email: "usuario@test.com",
-    role: "user", // Esto determina si se muestra el botón de añadir etiqueta
+    role: "admin", // Esto determina si se muestra el botón de añadir etiqueta
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };

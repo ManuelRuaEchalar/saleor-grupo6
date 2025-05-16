@@ -1,5 +1,8 @@
+import React from 'react';
 import { useState } from 'react';
 import { X, CreditCard, DollarSign, Truck, Check, AlertCircle } from 'lucide-react';
+import { useRef } from 'react';
+import { useEffect } from 'react';
 
 const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
   const [paymentMethod, setPaymentMethod] = useState('creditCard');
@@ -18,6 +21,8 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
   const [step, setStep] = useState(1); // 1: Información de pago, 2: Confirmación, 3: Éxito
 
   const [subscribeToNewsletter, setSubscribeToNewsletter] = useState(false);
+
+  const timeoutRef = useRef(null);
   // Usuario por defecto para pruebas
   const userId = 1;
 
@@ -160,11 +165,10 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
       
       setTimeout(() => {
         if (onSuccess) onSuccess(responseData.order);
-        
-        // Recargar la página principal
         window.location.href = 'http://localhost:5173/';
         window.location.reload();
       }, 3000);
+
       
     } catch (err) {
       console.error('Error al procesar el pago:', err);
@@ -422,6 +426,15 @@ const FormPago = ({ cartItems, total, onClose, onSuccess }) => {
         return null;
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
 
   return (
     <div className="payment-form-overlay">
