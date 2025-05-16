@@ -232,3 +232,5 @@ const PriceFilter = ({ onApplyFilter, activeFilter }) => {
 };
 
 export default PriceFilter;
+
+//

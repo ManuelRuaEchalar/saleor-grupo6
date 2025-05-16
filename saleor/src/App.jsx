@@ -269,8 +269,15 @@ function App() {
         margin: '0 auto',
         gap: '30px'
       }}>
-        {/* Contenedor de filtros colocado más a la izquierda */}
-        <div style={{ minWidth: '250px' }}>
+        {/* Panel izquierdo - Filtros y herramientas de administración */}
+        <div style={{ 
+          width: '280px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          alignSelf: 'flex-start'
+        }}>
+          {/* Filtro de precio */}
           {!loading && !error && products.length > 0 && (
             <PriceFilter 
               onApplyFilter={handlePriceFilter} 
@@ -278,6 +285,18 @@ function App() {
             />
           )}
           
+          {/* Herramientas de administración */}
+          {defaultUser?.role === 'admin' && (
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}>
+              <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Herramientas de Administración</h3>
+              <ExportCustomersCSV />
+            </div>
+          )}
           
           {/* Indicador de categoría activa para móviles */}
           {categoryTitle && (
@@ -298,21 +317,6 @@ function App() {
           {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
 
           <WelcomeMessage message={welcomeMessage} />
-          
-          {/* Sección de herramientas de administración */}
-          {defaultUser?.role === 'admin' && (
-            <div className="admin-tools" style={{
-              marginBottom: '20px',
-              padding: '15px',
-              backgroundColor: '#f9f9f9',
-              borderRadius: '8px',
-              border: '1px solid #e0e0e0'
-            }}>
-              <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Herramientas de Administración</h3>
-              <ExportCustomersCSV />
-              {/* Otras herramientas de admin pueden añadirse aquí */}
-            </div>
-          )}
           
           <h1 className="products-title">{getTitle()}</h1>
 
