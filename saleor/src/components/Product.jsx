@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function Product({ product, onAddToCart, isRecentlyViewed }) {
+function Product({ product, onAddToCart, isRecentlyViewed, isAdmin }) {
   const { id, name, description, price, image } = product;
 
   const [showTagOptions, setShowTagOptions] = useState(false);
@@ -11,14 +11,6 @@ function Product({ product, onAddToCart, isRecentlyViewed }) {
   const [tagAdded, setTagAdded] = useState(false);
   const [deliveryEstimate, setDeliveryEstimate] = useState(null);
   const [estimateLoading, setEstimateLoading] = useState(true);
-
-  const defaultUser = {
-    id: 1,
-    email: "usuario@test.com",
-    role: "admin",
-    createdAt: "2025-04-30T02:26:35.000Z",
-    updatedAt: "2025-04-30T02:26:35.000Z"
-  };
 
   useEffect(() => {
     const fetchDeliveryEstimate = async () => {
@@ -223,7 +215,7 @@ function Product({ product, onAddToCart, isRecentlyViewed }) {
         >
           Añadir al carrito
         </button>
-        {defaultUser?.role === 'admin' && (
+        {isAdmin && (
           <div className="tag-management-section">
             <button 
               className="add-tag-button"

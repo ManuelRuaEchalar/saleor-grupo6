@@ -239,8 +239,7 @@ function App() {
       return 'Nuestros Productos';
     }
   };
-
-  return (
+ return (
     <>
       <Nav onSearch={handleSearch} onCategorySelect={handleCategorySelect} />
       
@@ -310,7 +309,7 @@ function App() {
               activeFilter={priceFilter}
             />
           )}
-          {defaultUser?.role === 'admin' && (
+          {isAdmin && (
             <div style={{
               backgroundColor: 'white',
               borderRadius: '8px',
@@ -372,7 +371,7 @@ function App() {
         </div>
         
         <div style={{ flex: 1 }}>
-          {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
+          {isAdmin && <AdminWelcomeEditor />}
           <WelcomeMessage message={welcomeMessage} />
           <h1 className="products-title">{getTitle()}</h1>
           
@@ -417,6 +416,7 @@ function App() {
                         onAddToCart={handleAddToCart} 
                         isRecentlyViewed={isRecentlyViewed}
                         onView={() => handleViewProduct(product)}
+                        isAdmin={isAdmin}
                       />
                     ) : (
                       <Product 
@@ -424,6 +424,7 @@ function App() {
                         onAddToCart={handleAddToCart}
                         isRecentlyViewed={isRecentlyViewed}
                         onView={() => handleViewProduct(product)}
+                        isAdmin={isAdmin}
                       />
                     )}
                   </div>
