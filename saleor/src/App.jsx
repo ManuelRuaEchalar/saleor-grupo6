@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Nav from './components/Nav';
 import Product from './components/Product';
 import ProductCard from './components/ProductCard';
@@ -18,25 +17,59 @@ function App() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [categoryTitle, setCategoryTitle] = useState(null);
-  // NUEVO: Estado para controlar el rol del usuario
   const [isAdmin, setIsAdmin] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [message, setMessage] = useState('');
+  const [viewedProducts, setViewedProducts] = useState([]);
 
+  const handleAddToCart = async (product) => {
+    try {
+      const response = await fetch('http://localhost:4000/api/cart-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 1,
+          productId: product.id,
+          quantity: 1
+        })
+      });
+      if (!response.ok) throw new Error('Error al añadir al carrito');
+      const newItem = await response.json();
+      setCartItems(prevItems => {
+        const existingItem = prevItems.find(item => item.id === newItem.id);
+        if (existingItem) {
+          return prevItems.map(item =>
+            item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item
+          );
+        } else {
+          return [...prevItems, newItem];
+        }
+      });
+      setMessage('Producto añadido al carrito');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error(error);
+      setMessage('Error al añadir al carrito');
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
 
-  const handleAddToCart = (product) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        return [...prevItems, { ...product, quantity: 1 }];
-      }
+  const handleViewProduct = (product) => {
+    console.log('handleViewProduct llamado para:', product.id);
+    setViewedProducts(prevViewed => {
+      // Filtrar productos duplicados primero
+      const filteredViewed = prevViewed.filter(p => p.id !== product.id);
+      // Añadir el producto al principio y mantener máximo 5 productos
+      const newViewed = [product, ...filteredViewed].slice(0, 5);
+      
+      // Guardar en localStorage
+      const viewedIds = newViewed.map(p => p.id);
+      localStorage.setItem('viewedProductIds', JSON.stringify(viewedIds));
+      
+      return newViewed;
     });
   };
 
-  // Map de IDs de etiquetas a nombres de categorías
   const tagIdToCategoryName = {
     6: 'Ropa',
     7: 'Accesorios',
@@ -45,11 +78,10 @@ function App() {
     10: 'Belleza'
   };
 
-  // Usuario por defecto para pruebas - ahora con rol dinámico
   const defaultUser = {
     id: 1,
     email: "usuario@test.com",
-    role: isAdmin ? "admin" : "user", // Rol basado en el estado isAdmin
+    role: isAdmin ? "admin" : "user",
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
@@ -63,17 +95,10 @@ function App() {
       .catch(err => console.error('Error al cargar mensaje:', err));
   }, []);
 
-  // Función para extraer el precio numérico con validación de tipo
   const extractPrice = (price) => {
-    // Si ya es un número, devolverlo directamente
-    if (typeof price === 'number') {
-      return price;
-    }
-    
-    // Si es un string, procesarlo para extraer el valor numérico
+    if (typeof price === 'number') return price;
     if (typeof price === 'string') {
       try {
-        // Eliminar el símbolo de peso ($) y cualquier otro carácter no numérico excepto el punto
         const cleanPrice = price.replace(/[^\d.]/g, '');
         const numericPrice = parseFloat(cleanPrice);
         return isNaN(numericPrice) ? 0 : numericPrice;
@@ -82,171 +107,159 @@ function App() {
         return 0;
       }
     }
-    
-    // Para cualquier otro tipo o nulo, devolver 0
     console.log(`Valor de precio no manejado: ${price} (tipo: ${typeof price})`);
     return 0;
   };
 
-  // Efecto para cargar productos (todos o por categoría)
+  useEffect(() => {
+    const loadViewedProducts = async () => {
+      const viewedIds = JSON.parse(localStorage.getItem('viewedProductIds') || '[]');
+      if (viewedIds.length === 0) return;
+
+      try {
+        const viewedProductsData = [];
+        for (const id of viewedIds) {
+          try {
+            const response = await fetch(`http://localhost:4000/api/products/${id}`);
+            if (response.ok) {
+              const product = await response.json();
+              viewedProductsData.push(product);
+            }
+          } catch (err) {
+            console.error(`Error loading viewed product ${id}:`, err);
+          }
+        }
+        setViewedProducts(viewedProductsData);
+      } catch (err) {
+        console.error('Error loading viewed products:', err);
+      }
+    };
+    loadViewedProducts();
+  }, []);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        
-        // Determinar la URL a usar según si hay una categoría activa
         let url = 'http://localhost:4000/api/products';
-        
         if (activeCategory) {
           url = `http://localhost:4000/api/tags/${activeCategory}/products`;
         }
-        
         const response = await fetch(url);
-        
-        // Verificar que response existe antes de acceder a ok
         if (!response || !response.ok) throw new Error(`Error: ${response?.status || 'Unknown'}`);
-        
-        // Dependiendo de la estructura de respuesta podría ser diferente
         const data = await response.json();
-        
-        // Extraer productos de la respuesta - ajustar según la estructura real de la API
         const receivedProducts = activeCategory ? data.products || data : data;
-        
-        // Establecer el título de categoría si hay una activa
-        if (activeCategory && tagIdToCategoryName[activeCategory]) {
-          setCategoryTitle(tagIdToCategoryName[activeCategory]);
-        } else {
-          setCategoryTitle(null);
-        }
-
-        // Revisar si hay IDs de búsqueda guardados
-        const savedIds = JSON.parse(localStorage.getItem('lastSearchedIds') || '[]');
-        let ordered = receivedProducts;
-        if (savedIds.length && !activeCategory) {
-          // Productos buscados primero, en el orden guardado (solo cuando no filtramos por categoría)
-          const matched = savedIds
-            .map(id => receivedProducts.find(p => p.id === id))
-            .filter(Boolean);
-          const rest = receivedProducts.filter(p => !savedIds.includes(p.id));
-          ordered = [...matched, ...rest];
-        }
-
-        // Imprimir información de precios para depuración
-        ordered.forEach(product => {
-          console.log(`Producto: ${product.name}, Precio: ${product.price}, Tipo: ${typeof product.price}`);
-          try {
-            const numericPrice = extractPrice(product.price);
-            console.log(`  → Valor numérico: ${numericPrice}`);
-          } catch (e) {
-            console.error(`Error al procesar precio de ${product.name}:`, e);
-          }
-        });
-
-        setProducts(ordered);
-        setFilteredProducts(ordered);
-        setSearchResults([]); // Limpiar resultados de búsqueda cuando cambia la categoría
+        setProducts(receivedProducts);
         setError(null);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('No se pudieron cargar los productos. Intente nuevamente más tarde.');
-        // Establecer un array vacío para productos en caso de error
         setProducts([]);
-        setFilteredProducts([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
-  }, [activeCategory]); // Este efecto se ejecuta cuando cambia la categoría activa
+  }, [activeCategory]);
 
-  // Actualizar productos filtrados basado en búsqueda y filtro de precio
-  const updateFilteredProducts = (searchList, priceRange) => {
-    // Comenzar con la lista base (resultados de búsqueda o todos los productos)
-    let baseList = searchList && searchList.length > 0 ? searchList : products;
+  const updateFilteredProducts = () => {
+    console.log('updateFilteredProducts ejecutado');
+    let baseList;
+    
+    if (searchResults.length > 0) {
+      baseList = searchResults;
+    } else if (activeCategory) {
+      baseList = products;
+    } else {
+      // Reorganizar productos para mostrar los vistos recientemente primero
+      if (viewedProducts.length > 0) {
+        const viewedIds = viewedProducts.map(p => p.id);
+        // Obtener productos vistos que están en la lista actual de productos
+        const viewedInProducts = viewedProducts.filter(vp => 
+          products.some(p => p.id === vp.id)
+        );
+        // Obtener productos no vistos
+        const notViewedProducts = products.filter(p => 
+          !viewedIds.includes(p.id)
+        );
+        // Combinar: primero los vistos (en orden de visualización), luego el resto
+        baseList = [...viewedInProducts, ...notViewedProducts];
+      } else {
+        baseList = products;
+      }
+    }
     
     // Aplicar filtro de precio si existe
-    if (priceRange) {
+    if (priceFilter) {
       baseList = baseList.filter(product => {
-        try {
-          const price = extractPrice(product.price);
-          console.log(`Filtrando ${product.name} - Precio: ${price}, Rango: ${priceRange.min}-${priceRange.max}, Incluido: ${price >= priceRange.min && price <= priceRange.max}`);
-          return price >= priceRange.min && price <= priceRange.max;
-        } catch (e) {
-          console.error(`Error al filtrar ${product.name}:`, e);
-          return false;
-        }
+        const price = extractPrice(product.price);
+        return price >= priceFilter.min && price <= priceFilter.max;
       });
-      
-      console.log(`Filtrado por precio: ${baseList.length} productos cumplen con el rango $${priceRange.min}-$${priceRange.max}`);
     }
     
     setFilteredProducts(baseList);
   };
 
-  // Maneja resultados de búsqueda
-  const handleSearch = (results) => {
-    // Filtrar resultados válidos
+  useEffect(() => {
+    updateFilteredProducts();
+  }, [products, searchResults, activeCategory, viewedProducts, priceFilter]);
+
+  const handleSearch = useCallback((results) => {
+    console.log('handleSearch ejecutado con resultados:', results);
     const valid = results.filter(item => item && typeof item === 'object' && 'id' in item);
     setSearchResults(valid);
-
-    // Actualizar productos filtrados basado en búsqueda y filtro de precio
-    updateFilteredProducts(valid, priceFilter);
-
-    // Guardar IDs únicos de búsquedas recientes
-    if (valid.length) {
-      const newIds = valid.map(item => item.id);
-      const oldIds = JSON.parse(localStorage.getItem('lastSearchedIds') || '[]');
-      // Combinar manteniendo orden: nuevos primero, luego antiguos
-      const combined = [...newIds, ...oldIds];
-      // Eliminar duplicados conservando la primera aparición
-      const uniqueIds = combined.filter((id, index) => combined.indexOf(id) === index);
-      // Guardar solo los dos más recientes
-      const finalIds = uniqueIds.slice(0, 2);
-      localStorage.setItem('lastSearchedIds', JSON.stringify(finalIds));
-    } else {
-      // Si la búsqueda está vacía, limpiar guardado
-      localStorage.removeItem('lastSearchedIds');
-    }
-  };
-
-  // Manejar aplicación de filtro de precio
-  const handlePriceFilter = (min, max) => {
-    console.log(`handlePriceFilter llamado con min=${min}, max=${max}`);
     
-    if (min === null) { // Resetear filtro
+    // Actualizar productos vistos cuando se realiza una búsqueda
+    if (valid.length > 0) {
+      valid.forEach(product => handleViewProduct(product));
+    }
+  }, []);
+
+  const handlePriceFilter = (min, max) => {
+    if (min === null) {
       setPriceFilter(null);
-      updateFilteredProducts(searchResults, null);
-    } else { // Aplicar nuevo filtro
-      const newFilter = { min, max };
-      setPriceFilter(newFilter);
-      updateFilteredProducts(searchResults, newFilter);
+    } else {
+      setPriceFilter({ min, max });
     }
   };
 
-  // Manejar la selección de categoría
   const handleCategorySelect = (tagId) => {
     setActiveCategory(tagId);
-    // El nuevo fetch ocurrirá automáticamente por el useEffect que depende de activeCategory
+    setSearchResults([]);
   };
 
-  // Determinar qué mostrar para el título
   const getTitle = () => {
     if (searchResults.length > 0) {
       return 'Resultados de búsqueda';
     } else if (categoryTitle) {
       return categoryTitle;
+    } else if (viewedProducts.length > 0 && !activeCategory && filteredProducts.some(p => viewedProducts.some(vp => vp.id === p.id))) {
+      return 'Productos destacados';
     } else {
       return 'Nuestros Productos';
     }
   };
 
-  // Estructura de la aplicación
   return (
     <>
       <Nav onSearch={handleSearch} onCategorySelect={handleCategorySelect} />
       
-      {/* NUEVO: Interruptor de modo administrador */}
+      {message && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#4caf50',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '4px',
+          zIndex: 1000
+        }}>
+          {message}
+        </div>
+      )}
+
       <div style={{ 
         position: 'fixed', 
         bottom: '20px', 
@@ -284,7 +297,6 @@ function App() {
         margin: '0 auto',
         gap: '30px'
       }}>
-        {/* Panel izquierdo - Filtros y herramientas de administración */}
         <div style={{ 
           width: '280px',
           display: 'flex',
@@ -292,15 +304,12 @@ function App() {
           gap: '20px',
           alignSelf: 'flex-start'
         }}>
-          {/* Filtro de precio */}
           {!loading && !error && products.length > 0 && (
             <PriceFilter 
               onApplyFilter={handlePriceFilter} 
               activeFilter={priceFilter}
             />
           )}
-          
-          {/* Herramientas de administración */}
           {defaultUser?.role === 'admin' && (
             <div style={{
               backgroundColor: 'white',
@@ -312,8 +321,6 @@ function App() {
               <ExportCustomersCSV />
             </div>
           )}
-          
-          {/* Indicador de categoría activa para móviles */}
           {categoryTitle && (
             <div className="active-category-indicator">
               <p>Categoría: <strong>{categoryTitle}</strong></p>
@@ -325,23 +332,70 @@ function App() {
               </button>
             </div>
           )}
+          
+          {viewedProducts.length > 0 && !activeCategory && !searchResults.length > 0 && (
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '15px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}>
+              <h3 style={{ marginTop: 0, marginBottom: '10px', fontSize: '16px' }}>Vistos recientemente</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {viewedProducts.slice(0, 3).map(product => (
+                  <div key={`sidebar-${product.id}`} style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '5px',
+                    borderRadius: '4px',
+                    backgroundColor: '#f9f9f9'
+                  }}>
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/50x50?text=Producto'} 
+                      alt={product.name}
+                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }}
+                    />
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <p style={{ margin: 0, fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {product.name}
+                      </p>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#666' }}>
+                        {typeof product.price === 'string' && product.price.includes('$') ? product.price : `$${Number(product.price).toFixed(2)}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
-        {/* Contenedor de productos con margen ajustado */}
         <div style={{ flex: 1 }}>
           {defaultUser?.role === 'admin' && <AdminWelcomeEditor />}
-
           <WelcomeMessage message={welcomeMessage} />
-          
           <h1 className="products-title">{getTitle()}</h1>
-
+          
+          {viewedProducts.length > 0 && !activeCategory && !searchResults.length > 0 && (
+            <div style={{
+              backgroundColor: '#f5f8ff',
+              borderRadius: '8px',
+              padding: '15px',
+              marginBottom: '20px',
+              border: '1px solid #e0e7ff'
+            }}>
+              <p style={{ margin: 0, color: '#4a5568', fontWeight: '500' }}>
+                Productos que has visto recientemente aparecen primero
+              </p>
+            </div>
+          )}
+          
           {loading && (
             <div className="loading-container">
               <div className="loading-spinner"></div>
               <p>Cargando productos...</p>
             </div>
           )}
-
           {error && (
             <div className="error-container">
               <p className="error-message">{error}</p>
@@ -350,27 +404,32 @@ function App() {
               </button>
             </div>
           )}
-
           <div className="products-grid">
             {!loading && !error && filteredProducts && filteredProducts.length > 0 &&
-              filteredProducts.map(product => (
-                <div key={product.id} className="product-item">
-                  {searchResults.length > 0 ? (
-                    <ProductCard product={product} onAddToCart={handleAddToCart} />
-                  ) : (
-                    <Product 
-                      id={product.id}
-                      name={product.name}
-                      description={product.description}
-                      price={product.price}
-                      image={product.image}
-                    />
-                  )}
-                </div>
-              ))}
+              filteredProducts.map(product => {
+                const isRecentlyViewed = viewedProducts.some(p => p.id === product.id);
+                
+                return (
+                  <div key={product.id} className="product-item">
+                    {searchResults.length > 0 ? (
+                      <ProductCard 
+                        product={product} 
+                        onAddToCart={handleAddToCart} 
+                        isRecentlyViewed={isRecentlyViewed}
+                        onView={() => handleViewProduct(product)}
+                      />
+                    ) : (
+                      <Product 
+                        product={product}
+                        onAddToCart={handleAddToCart}
+                        isRecentlyViewed={isRecentlyViewed}
+                        onView={() => handleViewProduct(product)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
           </div>
-
-          {/* Mensaje cuando no hay resultados con los filtros aplicados */}
           {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
             <div style={{
               backgroundColor: '#fff',
@@ -386,7 +445,6 @@ function App() {
                   setPriceFilter(null);
                   setSearchResults([]);
                   setActiveCategory(null);
-                  setFilteredProducts(products);
                 }}
                 style={{
                   backgroundColor: '#161a1e',
@@ -402,11 +460,9 @@ function App() {
               </button>
             </div>
           )}
-
           {!loading && !error && products.length === 0 && (
             <p className="no-products">No hay productos disponibles.</p>
           )}
-
           {!loading && !error && searchResults.length === 0 && !priceFilter && !categoryTitle && products.length > 0 && filteredProducts.length > 0 && (
             <div className="search-notice">
               <p>Usa la barra de búsqueda para encontrar productos específicos</p>

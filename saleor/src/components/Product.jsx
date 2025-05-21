@@ -1,35 +1,32 @@
 import React, { useState, useEffect } from 'react';
 
-function Product({ id, name, description, price, image }) {
+function Product({ product, onAddToCart, isRecentlyViewed }) {
+  const { id, name, description, price, image } = product;
+
   const [showTagOptions, setShowTagOptions] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [productTags, setProductTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tagAdded, setTagAdded] = useState(false);
-  // NUEVO: Estado para la estimación de entrega
   const [deliveryEstimate, setDeliveryEstimate] = useState(null);
   const [estimateLoading, setEstimateLoading] = useState(true);
 
-  // Usuario por defecto para pruebas - en producción esto vendría de un contexto o sistema de autenticación
   const defaultUser = {
-    id: 1, 
+    id: 1,
     email: "usuario@test.com",
-    role: "admin", // Esto determina si se muestra el botón de añadir etiqueta
+    role: "admin",
     createdAt: "2025-04-30T02:26:35.000Z",
     updatedAt: "2025-04-30T02:26:35.000Z"
   };
 
-  // NUEVO: Obtener la estimación de tiempo de entrega
   useEffect(() => {
     const fetchDeliveryEstimate = async () => {
       try {
         setEstimateLoading(true);
         const response = await fetch(`http://localhost:4000/api/delivery-estimate/${id}`);
-        
         if (!response.ok) {
-          // Si la API no existe, generamos datos ficticios para demostración
-          const randomDays = Math.floor(Math.random() * 5) + 3; // Entre 3 y 7 días
+          const randomDays = Math.floor(Math.random() * 5) + 3;
           setDeliveryEstimate({
             minDays: randomDays,
             maxDays: randomDays + 2,
@@ -41,7 +38,6 @@ function Product({ id, name, description, price, image }) {
         }
       } catch (error) {
         console.error('Error al obtener estimación de entrega:', error);
-        // En caso de error, generamos una estimación predeterminada
         const randomDays = Math.floor(Math.random() * 5) + 3;
         setDeliveryEstimate({
           minDays: randomDays,
@@ -52,24 +48,19 @@ function Product({ id, name, description, price, image }) {
         setEstimateLoading(false);
       }
     };
-
     fetchDeliveryEstimate();
   }, [id]);
 
-  // Obtener las etiquetas disponibles y las etiquetas del producto al cargar el componente
   useEffect(() => {
-    // Solo cargar si se muestra el selector de etiquetas
     if (showTagOptions) {
       fetchAvailableTags();
       fetchProductTags();
     }
   }, [showTagOptions]);
 
-  // NUEVO: Función para formatear la fecha de entrega
   const formatDeliveryDate = (daysToAdd) => {
     const date = new Date();
     date.setDate(date.getDate() + daysToAdd);
-    
     return date.toLocaleDateString('es-ES', {
       weekday: 'long',
       day: 'numeric',
@@ -77,16 +68,13 @@ function Product({ id, name, description, price, image }) {
     });
   };
 
-  // Función para obtener todas las etiquetas disponibles
   const fetchAvailableTags = async () => {
     try {
       setLoading(true);
       const response = await fetch('http://localhost:4000/api/tags');
-      
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      
       const data = await response.json();
       setAvailableTags(data);
       setError(null);
@@ -99,15 +87,12 @@ function Product({ id, name, description, price, image }) {
     }
   };
 
-  // Función para obtener las etiquetas del producto actual
   const fetchProductTags = async () => {
     try {
       const response = await fetch(`http://localhost:4000/api/tags/product/${id}`);
-      
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      
       const data = await response.json();
       setProductTags(data);
     } catch (err) {
@@ -116,7 +101,6 @@ function Product({ id, name, description, price, image }) {
     }
   };
 
-  // Función para añadir una etiqueta al producto
   const addTagToProduct = async (tagId) => {
     try {
       setLoading(true);
@@ -126,18 +110,12 @@ function Product({ id, name, description, price, image }) {
           'Content-Type': 'application/json',
         }
       });
-      
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      
-      // Refrescar las etiquetas del producto
       fetchProductTags();
-      
-      // Mostrar notificación de éxito temporal
       setTagAdded(true);
       setTimeout(() => setTagAdded(false), 2000);
-      
       setError(null);
     } catch (err) {
       console.error('Error adding tag to product:', err);
@@ -147,11 +125,8 @@ function Product({ id, name, description, price, image }) {
     }
   };
 
-  // Función para manejar la selección de una etiqueta
   const handleTagSelect = (tagId) => {
-    // Verificar si la etiqueta ya está asociada al producto
     const isTagAlreadyAdded = productTags.some(tag => tag.id === tagId);
-    
     if (!isTagAlreadyAdded) {
       addTagToProduct(tagId);
     } else {
@@ -160,20 +135,32 @@ function Product({ id, name, description, price, image }) {
     }
   };
 
-  // Función para formatear el precio
   const formatPrice = (price) => {
-    // Si ya incluye el símbolo de moneda, devolverlo como está
     if (typeof price === 'string' && price.includes('$')) {
       return price;
     }
-    
-    // Convertir a número si es string y formatear
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
     return `$${numericPrice.toFixed(2)}`;
   };
 
   return (
-    <div className="product-card">
+    <div className={`product-card ${isRecentlyViewed ? 'recently-viewed' : ''}`}>
+      {isRecentlyViewed && (
+        <div className="recently-viewed-badge" style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: '#3182ce',
+          color: 'white',
+          fontSize: '11px',
+          padding: '3px 8px',
+          borderRadius: '10px',
+          zIndex: 10
+        }}>
+          Visto recientemente
+        </div>
+      )}
+      
       <div className="product-image-container">
         <img 
           src={image || 'https://via.placeholder.com/300x300?text=Producto'} 
@@ -181,17 +168,14 @@ function Product({ id, name, description, price, image }) {
           className="product-image"
         />
       </div>
-      
-      <div className="product-info">
+      <div className="product-info" style={isRecentlyViewed ? {
+        borderTop: '2px solid #3182ce',
+      } : {}}>
         <h3 className="product-name">{name}</h3>
-        
         {description && (
           <p className="product-description">{description}</p>
         )}
-        
         <p className="product-price">{formatPrice(price)}</p>
-        
-        {/* NUEVO: Sección de estimación de tiempo de entrega */}
         <div className="delivery-estimate" style={{
           backgroundColor: '#f8f9fa',
           borderRadius: '6px',
@@ -220,24 +204,25 @@ function Product({ id, name, description, price, image }) {
             )
           ) : null}
         </div>
-        
-        <button className="add-to-cart-button" style={{
-          backgroundColor: '#161a1e',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          padding: '10px 15px',
-          fontSize: '14px',
-          fontWeight: '500',
-          cursor: 'pointer',
-          width: '100%',
-          transition: 'background-color 0.2s ease',
-          marginTop: '10px'
-        }}>
+        <button 
+          className="add-to-cart-button" 
+          style={{
+            backgroundColor: '#161a1e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '10px 15px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%',
+            transition: 'background-color 0.2s ease',
+            marginTop: '10px'
+          }}
+          onClick={() => onAddToCart(product)}
+        >
           Añadir al carrito
         </button>
-        
-        {/* Botón para añadir etiqueta (solo visible para admin) */}
         {defaultUser?.role === 'admin' && (
           <div className="tag-management-section">
             <button 
@@ -256,8 +241,6 @@ function Product({ id, name, description, price, image }) {
             >
               {showTagOptions ? '− Ocultar etiquetas' : '+ Añadir etiqueta'}
             </button>
-            
-            {/* Selector de etiquetas */}
             {showTagOptions && (
               <div className="tag-selector" style={{ marginTop: '10px' }}>
                 {loading ? (
@@ -276,9 +259,7 @@ function Product({ id, name, description, price, image }) {
                       marginBottom: '5px'
                     }}>
                       {availableTags.map(tag => {
-                        // Comprobar si la etiqueta ya está añadida al producto
                         const isTagAdded = productTags.some(pt => pt.id === tag.id);
-                        
                         return (
                           <button
                             key={tag.id}
@@ -309,8 +290,6 @@ function Product({ id, name, description, price, image }) {
                     )}
                   </>
                 )}
-                
-                {/* Etiquetas actuales del producto */}
                 {productTags.length > 0 && (
                   <div className="current-tags" style={{ marginTop: '10px' }}>
                     <p style={{ fontSize: '12px', marginBottom: '5px', color: '#666' }}>
@@ -336,8 +315,6 @@ function Product({ id, name, description, price, image }) {
                 )}
               </div>
             )}
-            
-            {/* Notificación de etiqueta añadida */}
             {tagAdded && (
               <div 
                 className="tag-added-notification"
