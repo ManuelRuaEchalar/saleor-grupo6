@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Search, ShoppingCart, User, Menu, X, Check } from 'lucide-react';
-import AddedProduct from './AddedProduct';
+import AddedProduct from './Cart/AddedProduct';
 import FormPago from './FormPago';
 
 export default function Nav({ onSearch, onCategorySelect }) {
