@@ -1,19 +1,22 @@
-import React, { useState } from "react";
-import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
-import MobileMenu from "./MobileMenu";
-import SearchBar from "./SearchBar";
-import CartSidebar from "../Cart/CartSidebar";
-import useCart from "../../hooks/useCart";
-import styles from "../../styles/Nav.module.css";
+import React, { useState } from 'react';
+import { Search, ShoppingCart, User, Menu, X, Check } from 'lucide-react';
+import MobileMenu from './MobileMenu';
+import SearchBar from './SearchBar';
+import CartSidebar from '../Cart/CartSidebar';
+import FormPago from '../Checkout/FormPago';
+import useCart from '../../hooks/useCart';
+import styles from '../../styles/Nav.module.css';
 
 const Nav = ({ onSearch, onCategorySelect }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const { cartItems, cartCount, total, fetchCart, updateCart, removeCart } =
     useCart(1);
 
-  const categories = ["Ropa", "Accesorios", "Electrónica", "Hogar", "Belleza"];
+  const categories = ['Ropa', 'Accesorios', 'Electrónica', 'Hogar', 'Belleza'];
   const categoryToTagMapping = {
     Ropa: 6,
     Accesorios: 7,
@@ -25,13 +28,13 @@ const Nav = ({ onSearch, onCategorySelect }) => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     if (isCartOpen) setIsCartOpen(false);
+    if (isCheckoutOpen) setIsCheckoutOpen(false);
   };
 
   const toggleCart = () => {
-    console.log("isCartOpen antes:", isCartOpen);
     setIsCartOpen(!isCartOpen);
-    console.log("isCartOpen después:", !isCartOpen);
     if (isMenuOpen) setIsMenuOpen(false);
+    if (isCheckoutOpen) setIsCheckoutOpen(false);
     if (!isCartOpen) fetchCart();
   };
 
@@ -44,6 +47,14 @@ const Nav = ({ onSearch, onCategorySelect }) => {
       onCategorySelect(categoryToTagMapping[category]);
     }
     if (isMenuOpen) setIsMenuOpen(false);
+  };
+
+  const handleOrderSuccess = (orderData) => {
+    setOrderSuccess(true);
+    setIsCheckoutOpen(false);
+    setIsCartOpen(false);
+    fetchCart(); // Refrescar el carrito
+    setTimeout(() => setOrderSuccess(false), 5000);
   };
 
   return (
@@ -72,7 +83,7 @@ const Nav = ({ onSearch, onCategorySelect }) => {
                   key={category}
                   href="#"
                   className={`${styles.navLink} ${
-                    activeCategory === category ? styles.active : ""
+                    activeCategory === category ? styles.active : ''
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
@@ -129,14 +140,34 @@ const Nav = ({ onSearch, onCategorySelect }) => {
         onClose={toggleCart}
         onUpdate={updateCart}
         onRemove={removeCart}
+        onCheckout={() => setIsCheckoutOpen(true)}
       />
+      {isCheckoutOpen && (
+        <FormPago
+          cartItems={cartItems}
+          total={total}
+          onClose={() => setIsCheckoutOpen(false)}
+          onSuccess={handleOrderSuccess}
+        />
+      )}
+      {orderSuccess && (
+        <div
+          className={`${styles.orderSuccess} bg-green-500 text-white p-4 rounded fixed top-4 right-4 flex items-center gap-2`}
+        >
+          <Check size={18} />
+          <span>Pedido realizado con éxito</span>
+          <button onClick={() => setOrderSuccess(false)}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
       <div className={`${styles.submenu} bg-gray-800`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className={styles.submenuContent}>
             <a
               href="#"
               className={`${styles.submenuLink} ${
-                !activeCategory ? styles.active : ""
+                !activeCategory ? styles.active : ''
               }`}
               onClick={(e) => {
                 e.preventDefault();

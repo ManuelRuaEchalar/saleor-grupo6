@@ -1,0 +1,33 @@
+.container {
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.methods {
+  display: flex;
+  gap: 10px;
+}
+
+.methodBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.methodBtn.active,
+.methodBtn:hover {
+  border-color: #007bff;
+  background: #f0f9ff;
+}

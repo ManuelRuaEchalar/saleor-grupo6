@@ -3,7 +3,15 @@ import { X } from 'lucide-react';
 import AddedProduct from './AddedProduct';
 import styles from '../../styles/CartSidebar.module.css';
 
-const CartSidebar = ({ isOpen, cartItems, total, onClose, onUpdate, onRemove }) => {
+const CartSidebar = ({
+  isOpen,
+  cartItems,
+  total,
+  onClose,
+  onUpdate,
+  onRemove,
+  onCheckout,
+}) => {
   return (
     <>
       {isOpen && <div className={styles.overlay} onClick={onClose} />}
@@ -47,7 +55,9 @@ const CartSidebar = ({ isOpen, cartItems, total, onClose, onUpdate, onRemove }) 
                   <span>Total:</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
-                <button className={styles.checkoutBtn}>Proceder al pago</button>
+                <button onClick={onCheckout} className={styles.checkoutBtn}>
+                  Proceder al pago
+                </button>
               </div>
             </>
           )}
