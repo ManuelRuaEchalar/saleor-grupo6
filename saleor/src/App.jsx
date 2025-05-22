@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Nav from './components/Nav';
+import Nav from './components/Navigation/Nav';
 import Product from './components/Product';
 import ProductCard from './components/ProductCard';
 import AdminWelcomeEditor from './components/AdminWelcomeEditor';
@@ -22,6 +22,15 @@ function App() {
   const [message, setMessage] = useState('');
   const [viewedProducts, setViewedProducts] = useState([]);
 
+  const handleSearch = (products) => {
+    console.log('Resultados de búsqueda:', products);
+    // Actualiza el estado o renderiza los productos
+  };
+
+  const handleCategorySelect = (tag) => {
+    console.log('Categoría seleccionada:', tag);
+    // Filtra productos por categoría
+  };
   const handleAddToCart = async (product) => {
     try {
       const response = await fetch('http://localhost:4000/api/cart-items', {
@@ -204,16 +213,16 @@ function App() {
     updateFilteredProducts();
   }, [products, searchResults, activeCategory, viewedProducts, priceFilter]);
 
-  const handleSearch = useCallback((results) => {
-    console.log('handleSearch ejecutado con resultados:', results);
-    const valid = results.filter(item => item && typeof item === 'object' && 'id' in item);
-    setSearchResults(valid);
+  // const handleSearch = useCallback((results) => {
+  //   console.log('handleSearch ejecutado con resultados:', results);
+  //   const valid = results.filter(item => item && typeof item === 'object' && 'id' in item);
+  //   setSearchResults(valid);
     
-    // Actualizar productos vistos cuando se realiza una búsqueda
-    if (valid.length > 0) {
-      valid.forEach(product => handleViewProduct(product));
-    }
-  }, []);
+  //   // Actualizar productos vistos cuando se realiza una búsqueda
+  //   if (valid.length > 0) {
+  //     valid.forEach(product => handleViewProduct(product));
+  //   }
+  // }, []);
 
   const handlePriceFilter = (min, max) => {
     if (min === null) {
@@ -223,10 +232,10 @@ function App() {
     }
   };
 
-  const handleCategorySelect = (tagId) => {
-    setActiveCategory(tagId);
-    setSearchResults([]);
-  };
+  // const handleCategorySelect = (tagId) => {
+  //   setActiveCategory(tagId);
+  //   setSearchResults([]);
+  // };
 
   const getTitle = () => {
     if (searchResults.length > 0) {
