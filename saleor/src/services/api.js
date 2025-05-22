@@ -47,3 +47,19 @@ export const clearCart = async (userId) => {
   if (!response.ok) throw new Error(`Error al limpiar el carrito: ${response.status}`);
   return response.json();
 };
+
+export const fetchWelcomeMessage = async () => {
+  const response = await fetch('http://localhost:4000/api/welcome');
+  if (!response.ok) throw new Error(`Error al obtener el mensaje de bienvenida: ${response.status}`);
+  return response.json();
+};
+
+export const updateWelcomeMessage = async (message) => {
+  const response = await fetch('http://localhost:4000/api/welcome', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  if (!response.ok) throw new Error(`Error al actualizar el mensaje de bienvenida: ${response.status}`);
+  return response.json();
+};

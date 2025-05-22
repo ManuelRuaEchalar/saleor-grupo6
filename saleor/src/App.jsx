@@ -372,7 +372,7 @@ function App() {
         
         <div style={{ flex: 1 }}>
           {isAdmin && <AdminWelcomeEditor />}
-          <WelcomeMessage message={welcomeMessage} />
+          <WelcomeMessage />
           <h1 className="products-title">{getTitle()}</h1>
           
           {viewedProducts.length > 0 && !activeCategory && !searchResults.length > 0 && (
