@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Nav from './components/Navigation/Nav';
 import Product from './components/Product';
 import ProductCard from './components/ProductCard';
-import AdminWelcomeEditor from './components/AdminWelcomeEditor';
+import AdminWelcomeEditor from './components/Admin/AdminWelcomeEditor';
 import WelcomeMessage from './components/WelcomeMessage';
 import PriceFilter from './components/PriceFilter';
-import ExportCustomersCSV from './components/ExportCustomersCSV';
+import ExportCustomersCSV from './components/Admin/ExportCustomerCSV';
 import './App.css';
 
 function App() {

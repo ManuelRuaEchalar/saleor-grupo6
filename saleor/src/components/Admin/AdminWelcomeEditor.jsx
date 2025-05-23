@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import useApi from '../hooks/useApi';
-import { fetchWelcomeMessage, updateWelcomeMessage } from '../services/api';
+import useApi from '../../hooks/useApi';
+import { fetchWelcomeMessage, updateWelcomeMessage } from '../../services/api';
 import { Check, AlertCircle } from 'lucide-react';
-import styles from '../styles/AdminWelcomeEditor.module.css';
+import styles from '../../styles/AdminWelcomeEditor.module.css';
 
 const AdminWelcomeEditor = () => {
   const { data, loading, error, execute } = useApi();

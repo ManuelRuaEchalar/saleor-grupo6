@@ -63,3 +63,10 @@ export const updateWelcomeMessage = async (message) => {
   if (!response.ok) throw new Error(`Error al actualizar el mensaje de bienvenida: ${response.status}`);
   return response.json();
 };
+
+export const fetchCustomers = async (filters = {}) => {
+  const query = new URLSearchParams(filters).toString();
+  const response = await fetch(`http://localhost:4000/api/customers?${query}`);
+  if (!response.ok) throw new Error(`Error al obtener clientes: ${response.status}`);
+  return response.json();
+};
