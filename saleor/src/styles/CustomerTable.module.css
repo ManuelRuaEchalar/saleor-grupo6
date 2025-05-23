@@ -16,17 +16,17 @@
 }
 
 .exportBtn {
-  background: #007bff;
+  background: black;
   color: white;
   padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
 }
 
 .exportBtn:hover {
-  background: #0056b3;
+  background: #666;
 }
 
 .exportBtn:disabled {

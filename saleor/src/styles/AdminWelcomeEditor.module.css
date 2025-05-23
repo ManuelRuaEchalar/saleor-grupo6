@@ -36,21 +36,21 @@
 
 .textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: black;
 }
 
 .submitBtn {
-  background: #007bff;
+  background: black;
   color: white;
   padding: 10px;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 16px;
   cursor: pointer;
 }
 
 .submitBtn:hover {
-  background: #0056b3;
+  background: #666;
 }
 
 .submitBtn:disabled {

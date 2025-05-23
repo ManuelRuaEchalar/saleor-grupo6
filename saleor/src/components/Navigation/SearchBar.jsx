@@ -1,27 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { searchProducts } from '../../services/api';
+import { fetchProducts } from '../../services/api';
 import styles from '../../styles/SearchBar.module.css';
 
-const SearchBar = ({ onSearch, isMobile }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const SearchBar = ({ onSearch, isMobile, setSearchQuery }) => {
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const debounceTimer = setTimeout(async () => {
-      if (searchQuery.trim()) {
+      const trimmedQuery = localSearchQuery.trim();
+      console.log('SearchBar: Search query:', trimmedQuery); // Debug search term
+      setSearchQuery(trimmedQuery); // Sync with App.jsx
+
+      if (trimmedQuery) {
         try {
-          const products = await searchProducts(searchQuery);
+          setIsLoading(true);
+          const response = await fetchProducts({ name: trimmedQuery });
+          console.log('SearchBar: fetchProducts response:', response); // Debug API response
+          const products = Array.isArray(response) ? response : [];
+          console.log('SearchBar: Enviando resultados a onSearch:', products);
           onSearch(products);
         } catch (err) {
-          console.error('Error buscando productos:', err);
+          console.error('SearchBar: Error buscando productos:', err.message);
           onSearch([]);
+        } finally {
+          setIsLoading(false);
         }
       } else {
+        console.log('SearchBar: Query vacía, limpiando resultados');
         onSearch([]);
       }
     }, 500);
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, onSearch]);
+  }, [localSearchQuery, onSearch, setSearchQuery]);
+
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setLocalSearchQuery(query);
+  };
 
   return (
     <div
@@ -29,13 +46,18 @@ const SearchBar = ({ onSearch, isMobile }) => {
     >
       <input
         type="text"
-        placeholder="Buscar..."
+        placeholder="Buscar productos..."
         className={styles.searchInput}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        value={localSearchQuery}
+        onChange={handleInputChange}
+        aria-label="Buscar productos"
       />
       <button className={styles.searchButton} aria-label="Buscar">
-        <Search size={20} />
+        {isLoading ? (
+          <div className={styles.loadingSpinner}></div>
+        ) : (
+          <Search size={20} />
+        )}
       </button>
     </div>
   );

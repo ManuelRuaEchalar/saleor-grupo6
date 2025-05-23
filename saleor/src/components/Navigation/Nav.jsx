@@ -7,7 +7,7 @@ import FormPago from '../Checkout/FormPago';
 import useCart from '../../hooks/useCart';
 import styles from '../../styles/Nav.module.css';
 
-const Nav = ({ onSearch, onCategorySelect }) => {
+const Nav = ({ onSearch, onCategorySelect, setSearchQuery }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -96,7 +96,10 @@ const Nav = ({ onSearch, onCategorySelect }) => {
             </div>
           </div>
           <div className={`${styles.desktopActions} hidden md:flex`}>
-            <SearchBar onSearch={onSearch} />
+            <SearchBar 
+              onSearch={onSearch}
+              setSearchQuery={setSearchQuery} 
+            />
             <a href="#" className={styles.actionIcon}>
               <User size={24} />
             </a>

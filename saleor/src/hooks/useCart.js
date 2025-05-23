@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import useApi from "./useApi";
 import {
+  addCartItem,
   fetchCartItems,
   updateCartItem,
   removeCartItem,
@@ -21,6 +22,15 @@ const useCart = (userId) => {
       setCartItemsState([]);
     }
   }, [userId, execute]);
+
+  const addToCart = useCallback(
+    async ({ productId, quantity }) => {
+      // Llamas al endpoint y luego refrescas el carrito
+      await execute(addCartItem, userId, productId, quantity);
+      await fetchCart();
+    },
+    [execute, userId, fetchCart]
+  );
 
   const updateCart = useCallback(
     async (itemId, quantity) => {
@@ -63,6 +73,7 @@ const useCart = (userId) => {
     cartItems: cartItemsState,
     cartCount,
     total,
+    addToCart,
     fetchCart,
     updateCart,
     removeCart,

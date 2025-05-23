@@ -1,0 +1,90 @@
+/* PriceFilter.module.css */
+
+.priceFilter {
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  max-width: 320px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.priceFilter h3 {
+  margin: 0 0 15px;
+  font-size: 1.125rem;
+  color: var(--color-dark);
+  text-align: center;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.inputGroup label {
+  margin-bottom: 5px;
+  font-size: 0.875rem;
+  color: var(--color-dark);
+}
+
+.input {
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-light);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.error {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #e53935;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.applyButton {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  background-color: black;
+}
+
+.applyButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.resetButton {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: transparent;
+  color: var(--color-dark);
+  border: 1px solid var(--color-dark);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.resetButton:hover {
+  background-color: var(--color-light);
+}

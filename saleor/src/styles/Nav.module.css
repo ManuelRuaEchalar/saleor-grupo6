@@ -2,13 +2,16 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: black;
+  background-color: #fff;       
+  color: #000;                  
+  padding: 0px 20px;             
 }
 
 .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 10px 20px;              
 }
 
 .content {
@@ -24,6 +27,7 @@
 
 .logo {
   height: 40px;
+  filter: brightness(0) saturate(100%);
 }
 
 .desktopNav {
@@ -35,22 +39,23 @@
 .navLinks {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .navLink {
-  color: white;
+  color: #000;
   text-decoration: none;
   font-size: 16px;
 }
-
 .navLink.active,
 .navLink:hover {
   color: #60a5fa;
 }
 
 .desktopActions {
-  display: flex;
-  align-items: center;
+  display: none;
+  /* display: flex;
+  align-items: center; */
   gap: 15px;
 }
 
@@ -61,6 +66,11 @@
 
 .cartIcon {
   position: relative;
+  color: #000;
+  border: none;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px;
 }
 
 .cartCount {
@@ -83,17 +93,22 @@
 .menuButton {
   background: none;
   border: none;
-  color: white;
+  color: black;
   cursor: pointer;
 }
 
 .submenu {
-  padding: 10px 0;
+  background-color: #000; 
+  padding: 10px 20px;
 }
 
 .submenuContent {
   display: flex;
   gap: 20px;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .submenuLink {
@@ -105,4 +120,20 @@
 .submenuLink.active,
 .submenuLink:hover {
   color: #60a5fa;
+}
+
+@media (min-width: 768px) {
+  .desktopActions {
+    display: flex;
+    align-items: center;
+  }
+  .mobileActions {
+    display: none;
+  }
+
+  .navLinks {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+}
 }
