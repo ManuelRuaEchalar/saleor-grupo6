@@ -3,14 +3,17 @@ const Customer = require('../models/customer');
 // Obtener todos los clientes
 exports.getCustomers = async (req, res) => {
   try {
-    const customers = await Customer.findAll();
-    console.log('Clientes obtenidos de la BD:', customers);
+    const { name, email } = req.query;
+    const filters = { name, email };
+    const customers = await Customer.findAll(filters);
     res.status(200).json(customers);
   } catch (error) {
     console.error('Error al obtener clientes:', error);
     res.status(500).json({ error: 'Error al obtener clientes' });
   }
 };
+
+
 
 // Obtener un cliente por ID
 exports.getCustomerById = async (req, res) => {

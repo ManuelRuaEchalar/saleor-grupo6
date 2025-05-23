@@ -1,0 +1,139 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #fff;       
+  color: #000;                  
+  padding: 0px 20px;             
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;              
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.logoContainer {
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.logo {
+  height: 40px;
+  filter: brightness(0) saturate(100%);
+}
+
+.desktopNav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.navLinks {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.navLink {
+  color: #000;
+  text-decoration: none;
+  font-size: 16px;
+}
+.navLink.active,
+.navLink:hover {
+  color: #60a5fa;
+}
+
+.desktopActions {
+  display: none;
+  /* display: flex;
+  align-items: center; */
+  gap: 15px;
+}
+
+.actionIcon {
+  color: white;
+  text-decoration: none;
+}
+
+.cartIcon {
+  position: relative;
+  color: #000;
+  border: none;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+}
+
+.cartCount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+}
+
+.submenu {
+  background-color: #000; 
+  padding: 10px 20px;
+}
+
+.submenuContent {
+  display: flex;
+  gap: 20px;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.submenuLink {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.submenuLink.active,
+.submenuLink:hover {
+  color: #60a5fa;
+}
+
+@media (min-width: 768px) {
+  .desktopActions {
+    display: flex;
+    align-items: center;
+  }
+  .mobileActions {
+    display: none;
+  }
+
+  .navLinks {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+}
+}

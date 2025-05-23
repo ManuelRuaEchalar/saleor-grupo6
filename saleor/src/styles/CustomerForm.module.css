@@ -1,0 +1,77 @@
+.container {
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.form {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.formGroup {
+  flex: 1;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.inputError {
+  border-color: #e53935;
+}
+
+.errorText {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.searchBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.searchBtn:hover {
+  background: #0056b3;
+}
+
+.searchBtn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}

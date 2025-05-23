@@ -1,0 +1,70 @@
+.container {
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.orderSummary {
+  margin-bottom: 20px;
+}
+
+.orderSummary h4 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.orderItems {
+  margin-bottom: 15px;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.itemName {
+  flex: 1;
+}
+
+.itemQuantity {
+  width: 50px;
+  text-align: center;
+}
+
+.itemPrice {
+  width: 100px;
+  text-align: right;
+}
+
+.orderTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 500;
+  padding-top: 10px;
+}
+
+.paymentSummary,
+.shippingSummary {
+  margin-bottom: 20px;
+}
+
+.paymentSummary h4,
+.shippingSummary h4 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.paymentSummary p,
+.shippingSummary p {
+  margin: 5px 0;
+  font-size: 14px;
+}

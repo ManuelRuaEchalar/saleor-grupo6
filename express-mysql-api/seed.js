@@ -7,6 +7,17 @@ async function seedDatabase() {
     await initDatabase();
     console.log('Iniciando seed de la base de datos...');
 
+    const categories = ['Electrónica', 'Ropa', 'Hogar', 'Juguetes', 'Libros'];
+
+    for (const name of categories) {
+      await pool.query(`INSERT IGNORE INTO categories (name) VALUES (?)`, [name]);
+    }
+
+    // Obtener IDs de categoría para usarlos al insertar productos
+    const [catRows] = await pool.query(`SELECT * FROM categories`);
+    const categoryIds = catRows.map(c => c.id);
+
+
     // Imágenes únicas para cada producto
     const images = [
       'https://images.philips.com/is/image/philipsconsumer/82297dea811e471aa356b16f00253629?$pnglarge$&wid=1250',
@@ -33,23 +44,29 @@ async function seedDatabase() {
     }));
 
 
-    for (const product of products) {
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
+
       const [rows] = await pool.query(
         `SELECT * FROM products WHERE name = ?`,
         [product.name]
       );
 
       if (rows.length === 0) {
+        const categoryId = categoryIds[i % categoryIds.length]; // Asignar categoría de forma cíclica
+
         await pool.query(
-          `INSERT INTO products (name, description, price, image)
-           VALUES (?, ?, ?, ?)`,
-          [product.name, product.description, product.price, product.image]
+          `INSERT INTO products (name, description, price, image, category_id)
+          VALUES (?, ?, ?, ?, ?)`,
+          [product.name, product.description, product.price, product.image, categoryId]
         );
+
         console.log(`Producto creado: ${product.name}`);
       } else {
         console.log(`El producto ${product.name} ya existe, omitiendo...`);
       }
     }
+
 
     const testUser = {
       email: 'usuario@test.com',
@@ -130,6 +147,7 @@ async function seedDatabase() {
     for (const name of tags) {
       await pool.query(`INSERT IGNORE INTO tags (name) VALUES (?)`, [name]);
     }
+
 
 
 

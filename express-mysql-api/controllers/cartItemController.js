@@ -74,3 +74,16 @@ exports.deleteCartItem = async (req, res) => {
     res.status(500).json({ message: 'Error al eliminar item del carrito', error: error.message });
   }
 };
+
+// Limpiar todos los items del carrito de un usuario
+exports.clearCart = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const deletedCount = await CartItem.deleteByUserId(userId);
+    res.status(200).json({ message: `Se eliminaron ${deletedCount} items del carrito` });
+  } catch (error) {
+    console.error('Error al limpiar el carrito:', error);
+    res.status(500).json({ message: 'Error al limpiar el carrito', error: error.message });
+  }
+};
