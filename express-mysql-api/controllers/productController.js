@@ -1,12 +1,43 @@
 const Product = require('../models/productModel');
 
-// Actualización del controlador de Producto para trabajar con etiquetas
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.findAll();
-    res.status(200).json(products);
+    const { minPrice, maxPrice, category } = req.query;
+
+    let query = 'SELECT * FROM products WHERE 1=1';
+    const params = [];
+
+    if (minPrice) {
+      query += ' AND price >= ?';
+      params.push(Number(minPrice));
+    }
+
+    if (maxPrice) {
+      query += ' AND price <= ?';
+      params.push(Number(maxPrice));
+    }
+
+    if (category) {
+      query += ' AND category_id = ?';
+      params.push(Number(category));
+    }
+
+    const [rows] = await require('../config/db').pool.query(query, params);
+
+    const productsWithTags = await Promise.all(
+      rows.map(async (product) => {
+        const tags = await Product.getTags(product.id);
+        return {
+          ...product,
+          price: Number(product.price) || 0,
+          tags: tags || [],
+        };
+      })
+    );
+
+    res.status(200).json(productsWithTags);
   } catch (error) {
-    console.error('Error al obtener productos:', error);
+    console.error('Error al obtener productos con filtros:', error);
     res.status(500).json({ message: 'Error al obtener productos', error: error.message });
   }
 };
@@ -18,13 +49,12 @@ exports.getProductById = async (req, res) => {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
     
-    // Obtener etiquetas del producto
     const tags = await Product.getTags(req.params.id);
     
-    // Agregar etiquetas al objeto del producto
     res.status(200).json({
       ...product,
-      tags
+      price: Number(product.price) || 0,
+      tags: tags || [],
     });
   } catch (error) {
     console.error('Error al obtener producto:', error);
@@ -95,7 +125,6 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// Obtener productos cuyo nombre coincide exacto (case-insensitive)
 exports.getProductsByName = async (req, res) => {
   try {
     const { name } = req.params;
@@ -108,11 +137,14 @@ exports.getProductsByName = async (req, res) => {
       });
     }
 
-    // Para cada producto, obtener sus etiquetas
     const productsWithTags = await Promise.all(
       products.map(async (product) => {
         const tags = await Product.getTags(product.id);
-        return { ...product, tags };
+        return {
+          ...product,
+          price: Number(product.price) || 0,
+          tags: tags || [],
+        };
       })
     );
 

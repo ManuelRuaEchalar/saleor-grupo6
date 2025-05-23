@@ -139,6 +139,28 @@ async function initDatabase() {
       )
     `);
 
+    // Crear tabla de categorías
+    await promisePool.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL
+    )
+    `);
+
+    // Verificar si la columna category_id ya existe
+    const [columns] = await promisePool.query(`
+      SHOW COLUMNS FROM products LIKE 'category_id'
+    `);
+
+    if (columns.length === 0) {
+      // Solo agregamos la columna si no existe
+      await promisePool.query(`
+        ALTER TABLE products 
+        ADD COLUMN category_id INT DEFAULT NULL,
+        ADD FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+      `);
+    }
+
 
     console.log('Base de datos inicializada con éxito');
   } catch (error) {
