@@ -1,4 +1,4 @@
-const Customer = require('../models/customer');
+const Customer = require('../models/customer-model');
 
 // Obtener todos los clientes
 exports.getCustomers = async (req, res) => {

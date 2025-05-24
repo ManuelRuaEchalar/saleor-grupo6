@@ -1,7 +1,7 @@
 // orderController.js
-const Order = require('../models/orderModel');
-const User = require('../models/userModel');
-const Product = require('../models/productModel');
+const Order = require('../models/order-model');
+const User = require('../models/user-model');
+const Product = require('../models/product-model');
 const nodemailer = require('nodemailer');
 
 // Configurar el transporter de Nodemailer

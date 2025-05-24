@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const tagController = require('../controllers/tagController');
+const tagController = require('../controllers/tag-controller');
 
 // Rutas para etiquetas
 router.get('/', tagController.getAllTags);

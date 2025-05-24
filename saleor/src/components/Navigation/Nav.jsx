@@ -4,7 +4,7 @@ import MobileMenu from './MobileMenu';
 import SearchBar from './SearchBar';
 import CartSidebar from '../Cart/CartSidebar';
 import FormPago from '../Checkout/FormPago';
-import useCart from '../../hooks/useCart';
+import useCart from '../../hooks/use-cart';
 import styles from '../../styles/Nav.module.css';
 
 const Nav = ({ onSearch, onCategorySelect, setSearchQuery }) => {

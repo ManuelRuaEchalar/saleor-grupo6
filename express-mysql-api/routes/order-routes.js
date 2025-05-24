@@ -1,7 +1,7 @@
 // orderRoutes.js
 const express = require('express');
 const router = express.Router();
-const orderController = require('../controllers/orderController');
+const orderController = require('../controllers/order-controller');
 
 // Rutas para órdenes
 router.post('/', orderController.createOrder);

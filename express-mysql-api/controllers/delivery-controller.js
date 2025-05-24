@@ -2,8 +2,8 @@ exports.getEstimate = async (req, res) => {
   const { productId } = req.params;
 
   try {
-    // Aquí puedes hacer una consulta a BD, inventario o zona geográfica.
-    const stockAvailable = true; // Simulación, puedes conectar con tu modelo de stock
+    
+    const stockAvailable = true;
 
     if (!stockAvailable) {
       return res.status(200).json({ available: false });

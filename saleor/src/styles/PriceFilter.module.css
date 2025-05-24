@@ -69,7 +69,7 @@
 }
 
 .applyButton:hover {
-  background-color: var(--color-primary-hover);
+  background-color: #666;
 }
 
 .resetButton {

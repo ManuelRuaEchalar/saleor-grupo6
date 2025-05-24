@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useApi from '../../hooks/useApi';
+import useApi from '../../hooks/use-api';
 import { fetchTags, fetchProductTags, addTagToProduct, fetchDeliveryEstimate } from '../../services/api';
 import styles from '../../styles/Product.module.css';
 
