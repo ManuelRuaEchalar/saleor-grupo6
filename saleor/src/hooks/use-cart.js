@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import useApi from "./useApi";
+import useApi from "./use-api";
 import {
   addCartItem,
   fetchCartItems,

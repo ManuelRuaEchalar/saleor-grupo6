@@ -4,14 +4,14 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 // Importar rutas
-const productRoutes = require('./routes/productRoutes');
-const userRoutes = require('./routes/userRoutes');
-const cartItemRoutes = require('./routes/cartItemRoutes');
-const orderRoutes = require('./routes/orderRoutes');
-const tagRoutes = require('./routes/tagRoutes');
-const welcomeRoutes = require('./routes/welcomeRoutes');
-const customerRoutes = require('./routes/customers'); // Nuevo: importar rutas de clientes
-const deliveryEstimateRoutes = require('./routes/deliveryEstimateRoutes');
+const productRoutes = require('./routes/product-routes');
+const userRoutes = require('./routes/user-routes');
+const cartItemRoutes = require('./routes/cart-item-routes');
+const orderRoutes = require('./routes/order-routes');
+const tagRoutes = require('./routes/tag-routes');
+const welcomeRoutes = require('./routes/welcome-routes');
+const customerRoutes = require('./routes/customer-routes'); 
+const deliveryEstimateRoutes = require('./routes/delivery-estimate-routes');
 // Crear aplicación Express
 const app = express();
 
@@ -29,7 +29,7 @@ app.use('/api/cart-items', cartItemRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/welcome', welcomeRoutes);
-app.use('/api/customers', customerRoutes); // Nuevo: configurar rutas de clientes
+app.use('/api/customers', customerRoutes); 
 app.use('/api/delivery-estimate', deliveryEstimateRoutes);
 
 

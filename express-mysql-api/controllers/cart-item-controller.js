@@ -1,4 +1,4 @@
-const CartItem = require('../models/cartItemModel');
+const CartItem = require('../models/cart-item-model');
 
 // Obtener todos los items del carrito de un usuario
 exports.getCartItems = async (req, res) => {

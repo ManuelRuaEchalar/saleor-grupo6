@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const cartItemController = require('../controllers/cartItemController');
+const cartItemController = require('../controllers/cart-item-controller');
 
 // Rutas para items del carrito
 router.get('/user/:userId', cartItemController.getCartItems);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const deliveryController = require('../controllers/deliveryController');
+const deliveryController = require('../controllers/delivery-controller');
 
 router.get('/:productId', deliveryController.getEstimate);
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import useApi from '../../hooks/useApi';
-import useForm from '../../hooks/useForm';
+import useApi from '../../hooks/use-api';
+import useForm from '../../hooks/use-form';
 import { fetchCustomers } from '../../services/api';
 import CustomerForm from './CustomerForm';
 import CustomerTable from './CustomerTable';

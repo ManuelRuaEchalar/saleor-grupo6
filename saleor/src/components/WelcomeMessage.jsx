@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import useApi from '../hooks/useApi';
+import useApi from '../hooks/use-api';
 import { fetchWelcomeMessage } from '../services/api';
 import styles from '../styles/WelcomeMessage.module.css';
 

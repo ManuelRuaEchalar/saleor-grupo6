@@ -1,5 +1,5 @@
-const Tag = require('../models/tagModel');
-const Product = require('../models/productModel');
+const Tag = require('../models/tag-model');
+const Product = require('../models/product-model');
 
 // Obtener todas las etiquetas
 exports.getAllTags = async (req, res) => {

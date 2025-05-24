@@ -1,5 +1,5 @@
 import React from 'react';
-import useForm from '../../hooks/useForm';
+import useForm from '../../hooks/use-form';
 import styles from '../../styles/PriceFilter.module.css';
 
 const PriceFilter = ({ onApplyFilter, activeFilter }) => {

@@ -1,7 +1,7 @@
 // ProductCard.jsx
 import React, { useState } from 'react';
 import { ShoppingCart, Check } from 'lucide-react';
-import useCart from '../../hooks/useCart';
+import useCart from '../../hooks/use-cart';
 import styles from '../../styles/ProductCard.module.css';
 
 const formatPrice = (price) => {

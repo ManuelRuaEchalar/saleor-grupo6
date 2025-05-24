@@ -3,8 +3,8 @@ import { X, Check, AlertCircle, Truck } from 'lucide-react';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import ShippingForm from './ShippingForm';
 import OrderSummary from './OrderSummary';
-import useForm from '../../hooks/useForm';
-import useApi from '../../hooks/useApi';
+import useForm from '../../hooks/use-form';
+import useApi from '../../hooks/use-api';
 import { createOrder, clearCart } from '../../services/api';
 import styles from '../../styles/FormPago.module.css';
 

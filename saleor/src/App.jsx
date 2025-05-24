@@ -6,8 +6,8 @@ import AdminWelcomeEditor from "./components/Admin/AdminWelcomeEditor";
 import WelcomeMessage from "./components/WelcomeMessage";
 import PriceFilter from "./components/Products/PriceFilter";
 import ExportCustomersCSV from "./components/Admin/ExportCustomerCSV";
-import useApi from "./hooks/useApi";
-import useCart from "./hooks/useCart";
+import useApi from "./hooks/use-api";
+import useCart from "./hooks/use-cart";
 import {
   fetchProducts,
   fetchProductById,
